@@ -1,7 +1,11 @@
+import logging
 from app.config import Config
+
+logger = logging.getLogger(__name__)
 
 def calculate_daily_btc(user_hashrate_th, network_hashrate_th):
     if network_hashrate_th == 0:
+        logger.warning('Network hashrate is 0, returning 0 daily BTC')
         return 0.0
     
     hashrate_share = user_hashrate_th / network_hashrate_th
@@ -11,6 +15,7 @@ def calculate_daily_btc(user_hashrate_th, network_hashrate_th):
     
     daily_btc = hashrate_share * daily_blocks * block_reward
     
+    logger.debug(f'Daily BTC calculated: {daily_btc:.8f} (hashrate: {user_hashrate_th} TH/s, share: {hashrate_share*100:.6f}%)')
     return daily_btc
 
 def calculate_monthly_profit(user_hashrate_th, network_hashrate_th, btc_price_usd):
@@ -23,6 +28,7 @@ def calculate_monthly_profit(user_hashrate_th, network_hashrate_th, btc_price_us
     
     monthly_profit_usd = net_btc * btc_price_usd
     
+    logger.debug(f'Monthly profit calculated: ${monthly_profit_usd:.2f} (gross BTC: {monthly_btc:.8f}, net BTC: {net_btc:.8f})')
     return monthly_profit_usd
 
 def calculate_roi_days(investment_usd, user_hashrate_th, network_hashrate_th, btc_price_usd):
