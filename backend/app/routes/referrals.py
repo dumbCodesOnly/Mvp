@@ -1,8 +1,9 @@
 import logging
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from datetime import datetime
 from app import db
-from app.models import User, Referral
+from app.models import User, Referral, Payout
 
 bp = Blueprint('referrals', __name__, url_prefix='/api/referrals')
 
@@ -38,9 +39,29 @@ def get_referral_stats():
     referrals = Referral.query.filter_by(referrer_id=user_id).all()
     total_commission = sum(ref.commission_earned_usd for ref in referrals)
     
+    pending_payouts = Payout.query.filter_by(user_id=user_id, status='pending').all()
+    pending_amount = sum(p.amount_usd for p in pending_payouts)
+    
+    paid_payouts = Payout.query.filter_by(user_id=user_id, status='paid').all()
+    paid_amount = sum(p.amount_usd for p in paid_payouts)
+    
     current_app.logger.info(f'Referral stats: User {user_id}, Count={len(referrals)}, Commission=${total_commission}')
     return jsonify({
         'referral_code': user.referral_code,
         'total_referrals': len(referrals),
-        'total_commission_usd': total_commission
+        'total_commission_usd': total_commission,
+        'pending_payout_usd': pending_amount,
+        'paid_payout_usd': paid_amount
     }), 200
+
+
+@bp.route('/payouts', methods=['GET'])
+@jwt_required()
+def get_user_payouts():
+    user_id = int(get_jwt_identity())
+    current_app.logger.debug(f'Fetching payouts for user ID: {user_id}')
+    
+    payouts = Payout.query.filter_by(user_id=user_id).order_by(Payout.created_at.desc()).all()
+    
+    current_app.logger.info(f'Retrieved {len(payouts)} payouts for user {user_id}')
+    return jsonify([payout.to_dict() for payout in payouts]), 200

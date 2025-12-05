@@ -3,7 +3,7 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime, timedelta
 from app import db
-from app.models import Rental, Miner, User
+from app.models import Rental, Miner, User, Referral, Payout
 
 bp = Blueprint('rentals', __name__, url_prefix='/api/rentals')
 
@@ -86,6 +86,32 @@ def activate_rental(rental_id):
     rental.is_active = True
     rental.start_date = datetime.utcnow()
     rental.end_date = rental.start_date + timedelta(days=rental.duration_days)
+    
+    rental_user = User.query.get(rental.user_id)
+    if rental_user and rental_user.referred_by:
+        referral_percent = current_app.config.get('REFERRAL_PERCENT', 3.0)
+        miner = Miner.query.get(rental.miner_id)
+        if miner:
+            commission_amount = (miner.price_usd * referral_percent) / 100
+            
+            referral = Referral.query.filter_by(
+                referrer_id=rental_user.referred_by,
+                referred_id=rental_user.id
+            ).first()
+            
+            if referral:
+                referral.commission_earned_usd += commission_amount
+                
+                payout = Payout(
+                    user_id=rental_user.referred_by,
+                    referral_id=referral.id,
+                    rental_id=rental.id,
+                    amount_usd=commission_amount,
+                    payout_type='referral_commission',
+                    status='pending'
+                )
+                db.session.add(payout)
+                current_app.logger.info(f'Referral commission credited: ${commission_amount:.2f} to user {rental_user.referred_by}')
     
     db.session.commit()
     current_app.logger.info(f'Rental activated: ID {rental_id}, Start: {rental.start_date}, End: {rental.end_date}')

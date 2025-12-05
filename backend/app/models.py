@@ -150,3 +150,32 @@ class Payment(db.Model):
             'confirmed_at': self.confirmed_at.isoformat() if self.confirmed_at else None,
             'created_at': self.created_at.isoformat()
         }
+
+
+class Payout(db.Model):
+    __tablename__ = 'payouts'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    referral_id = db.Column(db.Integer, db.ForeignKey('referrals.id'), nullable=True)
+    rental_id = db.Column(db.Integer, db.ForeignKey('rentals.id'), nullable=True)
+    amount_usd = db.Column(db.Float, nullable=False)
+    payout_type = db.Column(db.String(20), default='referral_commission')
+    status = db.Column(db.String(20), default='pending')
+    processed_at = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref=db.backref('payouts', lazy='dynamic'))
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'referral_id': self.referral_id,
+            'rental_id': self.rental_id,
+            'amount_usd': self.amount_usd,
+            'payout_type': self.payout_type,
+            'status': self.status,
+            'processed_at': self.processed_at.isoformat() if self.processed_at else None,
+            'created_at': self.created_at.isoformat()
+        }
