@@ -21,6 +21,12 @@ def checkout():
     duration_days = data.get('duration_days', 30)
     crypto_type = data.get('crypto_type', 'BTC')
     
+    if not miner_id:
+        return jsonify({'error': 'Miner ID is required'}), 400
+    
+    if duration_days is not None and (duration_days < 1 or duration_days > 365):
+        return jsonify({'error': 'Duration must be between 1 and 365 days'}), 400
+    
     miner = Miner.query.get(miner_id)
     if not miner:
         return jsonify({'error': 'Miner not found'}), 404
@@ -31,9 +37,15 @@ def checkout():
     if hashrate is None:
         hashrate = miner.hashrate_th
     
+    if hashrate <= 0 or hashrate > miner.hashrate_th:
+        return jsonify({'error': f'Hashrate must be between 0 and {miner.hashrate_th} TH/s'}), 400
+    
     hashrate_ratio = hashrate / miner.hashrate_th
     total_price = miner.price_usd * hashrate_ratio * (duration_days / 30)
     monthly_fee = miner.price_usd * 0.05 * hashrate_ratio
+    
+    if total_price <= 0:
+        return jsonify({'error': 'Invalid order total'}), 400
     
     rental = Rental(
         user_id=user_id,
@@ -109,19 +121,28 @@ def simulate_payment_confirm(payment_id):
                         referred_id=rental_user.id
                     ).first()
                     
-                    if referral:
-                        referral.commission_earned_usd += commission_amount
-                        
-                        payout = Payout(
-                            user_id=rental_user.referred_by,
-                            referral_id=referral.id,
-                            rental_id=rental.id,
-                            amount_usd=commission_amount,
-                            payout_type='referral_commission',
-                            status='pending'
+                    if not referral:
+                        referral = Referral(
+                            referrer_id=rental_user.referred_by,
+                            referred_id=rental_user.id,
+                            commission_earned_usd=0.0
                         )
-                        db.session.add(payout)
-                        current_app.logger.info(f'Referral commission credited: ${commission_amount:.2f} to user {rental_user.referred_by}')
+                        db.session.add(referral)
+                        db.session.flush()
+                        current_app.logger.info(f'Created new referral record for referrer {rental_user.referred_by}')
+                    
+                    referral.commission_earned_usd += commission_amount
+                    
+                    payout = Payout(
+                        user_id=rental_user.referred_by,
+                        referral_id=referral.id,
+                        rental_id=rental.id,
+                        amount_usd=commission_amount,
+                        payout_type='referral_commission',
+                        status='pending'
+                    )
+                    db.session.add(payout)
+                    current_app.logger.info(f'Referral commission credited: ${commission_amount:.2f} to user {rental_user.referred_by}')
             
             current_app.logger.info(f'Rental activated: ID={rental.id}')
     
