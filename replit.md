@@ -141,11 +141,38 @@ All models use SQLAlchemy ORM with foreign key relationships and lazy loading fo
 - Added null check for user in referral stats endpoint
 - Seeded database with 6 mining plans and admin user
 
-## Development Notes
+## Replit Setup Guide
 
-**Replit Workflow Setup (IMPORTANT):**
+Follow these steps when importing this project into Replit:
 
-When importing this project into Replit, set up **two separate workflows** to avoid restart issues:
+### Step 1: Create PostgreSQL Database
+- Use Replit's built-in PostgreSQL database tool to create a database
+- This automatically sets `DATABASE_URL` and related environment variables
+
+### Step 2: Set Required Secrets
+Add the following secrets in Replit's Secrets tab:
+- `SECRET_KEY` - Flask session secret (generate a random string)
+- `JWT_SECRET_KEY` - JWT token secret (can be same as SECRET_KEY)
+
+Optional secrets:
+- `MAINTENANCE_FEE_PERCENT` - Default: 5.0
+- `REFERRAL_PERCENT` - Default: 3.0
+
+### Step 3: Install Dependencies
+
+**Python packages** (run in Shell):
+```bash
+pip install Flask Flask-SQLAlchemy Flask-Migrate Flask-JWT-Extended Flask-CORS psycopg2-binary python-dotenv requests gunicorn Werkzeug email-validator
+```
+
+**Node.js packages** (run in Shell):
+```bash
+cd frontend && npm install
+```
+
+### Step 4: Configure Workflows (IMPORTANT)
+
+Set up **two separate workflows** to avoid restart issues:
 
 1. **Backend API** workflow:
    - Command: `cd backend && gunicorn --bind 0.0.0.0:3000 --reuse-port --reload run:app`
@@ -158,6 +185,20 @@ When importing this project into Replit, set up **two separate workflows** to av
    - Port: 5000
 
 **Do NOT combine both servers into a single workflow with background processes** (using `&`). This causes restart issues where processes don't get properly terminated.
+
+### Step 5: Seed Database (Optional)
+To populate the database with sample miners and an admin user:
+```bash
+cd backend && python seed_data.py
+```
+
+This creates:
+- 6 mining hardware plans
+- Admin user: admin@cloudminer.com / admin123
+
+---
+
+## Development Notes
 
 **Running the Application:**
 - Frontend: Vite dev server on port 5000 (proxies /api to backend)
