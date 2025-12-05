@@ -12,7 +12,7 @@ def admin_required(fn):
     @wraps(fn)
     @jwt_required()
     def wrapper(*args, **kwargs):
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         user = User.query.get(user_id)
         if not user or not user.is_admin:
             current_app.logger.warning(f'Admin access denied for user ID: {user_id}')
@@ -133,7 +133,7 @@ def get_user_details(user_id):
 def toggle_user_admin(user_id):
     current_app.logger.info(f'=== Admin Toggle Admin Status: {user_id} ===')
     
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     if current_user_id == user_id:
         return jsonify({'error': 'Cannot modify your own admin status'}), 400
     

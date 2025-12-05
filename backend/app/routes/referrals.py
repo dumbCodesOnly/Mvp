@@ -9,7 +9,7 @@ bp = Blueprint('referrals', __name__, url_prefix='/api/referrals')
 @bp.route('/', methods=['GET'])
 @jwt_required()
 def get_referrals():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     current_app.logger.debug(f'Fetching referrals for user ID: {user_id}')
     referrals = Referral.query.filter_by(referrer_id=user_id).all()
     
@@ -27,7 +27,7 @@ def get_referrals():
 @bp.route('/stats', methods=['GET'])
 @jwt_required()
 def get_referral_stats():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     current_app.logger.debug(f'Fetching referral stats for user ID: {user_id}')
     user = User.query.get(user_id)
     

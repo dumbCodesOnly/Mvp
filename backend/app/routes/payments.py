@@ -9,7 +9,7 @@ bp = Blueprint('payments', __name__, url_prefix='/api/payments')
 @bp.route('/', methods=['POST'])
 @jwt_required()
 def create_payment():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     current_app.logger.info(f'=== Create Payment Request by User ID: {user_id} ===')
     data = request.get_json()
     
@@ -30,7 +30,7 @@ def create_payment():
 @bp.route('/user', methods=['GET'])
 @jwt_required()
 def get_user_payments():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     current_app.logger.debug(f'Fetching payments for user ID: {user_id}')
     payments = Payment.query.filter_by(user_id=user_id).all()
     current_app.logger.info(f'Retrieved {len(payments)} payments for user {user_id}')
@@ -40,7 +40,7 @@ def get_user_payments():
 @bp.route('/<int:payment_id>', methods=['GET'])
 @jwt_required()
 def get_payment(payment_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     current_app.logger.debug(f'Fetching payment ID: {payment_id} for user: {user_id}')
     payment = Payment.query.get(payment_id)
     

@@ -43,7 +43,7 @@ def register():
         db.session.commit()
         current_app.logger.info(f'Referral record created for user ID: {user.id}')
     
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
     current_app.logger.info(f'Access token generated for user: {user.email}')
     
     return jsonify({
@@ -68,7 +68,7 @@ def login():
         current_app.logger.warning(f'Login failed: Invalid credentials for {data["email"]}')
         return jsonify({'error': 'Invalid email or password'}), 401
     
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
     current_app.logger.info(f'User {user.email} logged in successfully (ID: {user.id})')
     
     return jsonify({
@@ -79,7 +79,7 @@ def login():
 @bp.route('/profile', methods=['GET'])
 @jwt_required()
 def profile():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     current_app.logger.debug(f'Profile request for user ID: {user_id}')
     user = User.query.get(user_id)
     

@@ -75,7 +75,7 @@ def estimate_profit(miner_id):
 @bp.route('/', methods=['POST'])
 @jwt_required()
 def create_miner():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     current_app.logger.info(f'=== Create Miner Request by User ID: {user_id} ===')
     user = User.query.get(user_id)
     
@@ -107,7 +107,7 @@ def create_miner():
 @bp.route('/<int:miner_id>', methods=['PUT'])
 @jwt_required()
 def update_miner(miner_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     current_app.logger.info(f'=== Update Miner Request (ID: {miner_id}) by User: {user_id} ===')
     user = User.query.get(user_id)
     

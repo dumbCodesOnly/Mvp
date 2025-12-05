@@ -10,7 +10,7 @@ bp = Blueprint('rentals', __name__, url_prefix='/api/rentals')
 @bp.route('/', methods=['POST'])
 @jwt_required()
 def create_rental():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     current_app.logger.info(f'=== Create Rental Request by User ID: {user_id} ===')
     data = request.get_json()
     
@@ -41,7 +41,7 @@ def create_rental():
 @bp.route('/user', methods=['GET'])
 @jwt_required()
 def get_user_rentals():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     current_app.logger.debug(f'Fetching rentals for user ID: {user_id}')
     rentals = Rental.query.filter_by(user_id=user_id).all()
     current_app.logger.info(f'Retrieved {len(rentals)} rentals for user {user_id}')
@@ -51,7 +51,7 @@ def get_user_rentals():
 @bp.route('/<int:rental_id>', methods=['GET'])
 @jwt_required()
 def get_rental(rental_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     current_app.logger.debug(f'Fetching rental ID: {rental_id} for user: {user_id}')
     rental = Rental.query.get(rental_id)
     
@@ -69,7 +69,7 @@ def get_rental(rental_id):
 @bp.route('/<int:rental_id>/activate', methods=['PUT'])
 @jwt_required()
 def activate_rental(rental_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     current_app.logger.info(f'=== Activate Rental Request: ID {rental_id} by User {user_id} ===')
     user = User.query.get(user_id)
     
