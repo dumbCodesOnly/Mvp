@@ -28,7 +28,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "bash -c 'cd backend && gunicorn --bind 0.0.0.0:3000 --reuse-port --reload run:app & cd frontend && npm run dev'"
+args = "bash -c 'trap \"kill 0\" EXIT; cd backend && gunicorn --bind 0.0.0.0:3000 --reuse-port --reload run:app & cd frontend && exec npm run dev'"
 waitForPort = 5000
 
 [[ports]]
@@ -40,7 +40,7 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 35851
+localPort = 35957
 externalPort = 4200
 
 [[ports]]
