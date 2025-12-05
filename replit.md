@@ -110,7 +110,30 @@ All models use SQLAlchemy ORM with foreign key relationships and lazy loading fo
 
 ## Recent Changes
 
-**December 5, 2025 (Latest):**
+**December 5, 2025 (Phase 7 - Advanced Features):**
+- Added CSS animations and transitions for better UX
+  - Fade-in animations on page load (animate-fade-in, animate-fade-in-up, animate-fade-in-down)
+  - Slide animations for modals and dropdowns
+  - Smooth hover effects (hover-scale, hover-glow, btn-transition)
+  - Skeleton loading animations for loading states
+  - Slow bounce animation for decorative elements (animate-bounce-slow)
+- Implemented Toast notification system
+  - ToastProvider context for global toast access
+  - Support for success, error, warning, and info toasts
+  - Auto-dismiss with configurable duration
+  - Animated entrance/exit with progress bar
+  - Used in Login, Register pages for user feedback
+- Added LoadingSpinner component with multiple variants
+  - Size options: sm, md, lg, xl
+  - CardSkeleton for loading placeholder content
+  - Integrates with existing pages for consistent loading UX
+- Fixed BTC price API by switching from CoinDesk to CoinGecko
+  - api.coindesk.com was returning 404 errors
+  - Now using api.coingecko.com for reliable price data
+- Updated Login/Register pages with animations and toast notifications
+- Dashboard now uses skeleton loading states and staggered animations
+
+**December 5, 2025 (Earlier):**
 - Completed Phase 4 (Referral System): Added automated commission payout logic
   - New Payout model for tracking referral commissions
   - Automatic commission crediting when rentals are activated
@@ -238,6 +261,11 @@ This creates:
 - `GET /api/referrals/stats` - Get referral stats with pending/paid amounts
 - `GET /api/referrals/payouts` - Get user's payout history
 
+**Completed Phases:**
+- Phase 1-6: Core functionality (Auth, Miners, Rentals, Referrals, Payments, Admin)
+- Phase 7: Advanced Features (Animations, Toast notifications, Loading states)
+- Phase 8: Deployment configuration (Render, Gunicorn)
+
 **Next Phases:**
-- Phase 7: Advanced Features (Email notifications, animations)
 - PWA and Capacitor setup for mobile
+- Email notifications (optional enhancement)
