@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "python-3.11", "web"]
+modules = ["python-3.11", "nodejs-20", "web"]
 [agent]
 expertMode = true
 integrations = ["python_database:1.0.0", "flask_authentication:1.0.0"]
@@ -17,10 +17,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "fullstack"
+args = "Start application"
 
 [[workflows.workflow]]
-name = "fullstack"
+name = "Start application"
 author = "agent"
 
 [[workflows.workflow.tasks]]
@@ -38,6 +38,10 @@ externalPort = 3000
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 42099
+externalPort = 3001
 
 [deployment]
 deploymentTarget = "autoscale"
