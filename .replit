@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "python-3.11", "web", "postgresql-16"]
+modules = ["nodejs-20", "python-3.11", "web"]
 [agent]
 expertMode = true
 integrations = ["python_database:1.0.0", "flask_authentication:1.0.0"]
@@ -28,7 +28,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "bash -c 'cd backend && python run.py & cd frontend && npm run dev'"
+args = "bash -c 'cd backend && gunicorn --bind 0.0.0.0:3000 --reuse-port --reload run:app & cd frontend && npm run dev'"
 waitForPort = 5000
 
 [[ports]]
@@ -40,7 +40,7 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 42099
+localPort = 38921
 externalPort = 3001
 
 [[ports]]
