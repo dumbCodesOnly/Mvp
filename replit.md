@@ -111,6 +111,12 @@ All models use SQLAlchemy ORM with foreign key relationships and lazy loading fo
 ## Recent Changes
 
 **December 5, 2025:**
+- Completed Phase 6 (Admin Panel): Full admin dashboard with stats, miner CRUD management, user management with search/pagination
+  - Admin-only route protection with `@admin_required` decorator
+  - Dashboard stats: total users, miners, rentals, revenue, active hashrate
+  - Miner management: create, update, delete miners with full form
+  - User management: list all users, view details, toggle admin status
+  - Admin navigation in sidebar (visible only to admin users)
 - Completed Phase 3 (Frontend Dashboard): Added Sidebar navigation, Footer, UserStats cards, PriceChart, EarningsChart, and Miners filter bar with duration/hashrate/sorting controls
 - Completed Phase 4 (Referral System): Implemented referral tracking, commission display, and shareable referral code generation
 - Fixed Layout component for proper flex row display of sidebar and main content
@@ -127,8 +133,24 @@ All models use SQLAlchemy ORM with foreign key relationships and lazy loading fo
 **Test Credentials:**
 - Admin: admin@cloudminer.com / admin123
 
+**Admin Panel Routes:**
+- `/admin` - Admin Dashboard with stats overview
+- `/admin/miners` - Miner management (CRUD)
+- `/admin/users` - User management with search
+
+**Admin API Endpoints:**
+- `GET /api/admin/stats` - Dashboard statistics
+- `GET /api/admin/users` - List all users (paginated)
+- `GET /api/admin/users/:id` - User details
+- `PUT /api/admin/users/:id/toggle-admin` - Toggle admin status
+- `GET /api/admin/miners` - List miners with rental stats
+- `POST /api/admin/miners` - Create miner
+- `PUT /api/admin/miners/:id` - Update miner
+- `DELETE /api/admin/miners/:id` - Delete miner
+- `GET /api/admin/rentals` - List all rentals
+- `GET /api/admin/payments` - List all payments
+
 **Next Phases:**
 - Phase 5: Payment Integration (Stripe/Crypto)
-- Phase 6: Admin Panel
 - Phase 7: Advanced Features (Maintenance windows, notifications)
 - Phase 8: Deployment

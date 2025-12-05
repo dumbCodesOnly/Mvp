@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { FaChartLine, FaServer, FaUsers, FaGift, FaCog, FaWallet } from 'react-icons/fa'
+import { FaChartLine, FaServer, FaUsers, FaGift, FaCog, FaWallet, FaShieldAlt } from 'react-icons/fa'
 
 const Sidebar = () => {
   const { user } = useAuth()
@@ -13,8 +13,17 @@ const Sidebar = () => {
     { path: '/referrals', label: 'Referrals', icon: FaGift, requiresAuth: true },
   ]
 
+  const adminItems = [
+    { path: '/admin', label: 'Admin Dashboard', icon: FaShieldAlt },
+    { path: '/admin/miners', label: 'Manage Miners', icon: FaServer },
+    { path: '/admin/users', label: 'Manage Users', icon: FaUsers },
+  ]
+
   const isActive = (path) => {
-    return location.pathname === path
+    if (path === '/admin') {
+      return location.pathname === '/admin'
+    }
+    return location.pathname === path || location.pathname.startsWith(path + '/')
   }
 
   return (
@@ -43,6 +52,32 @@ const Sidebar = () => {
             </Link>
           )
         })}
+
+        {user?.is_admin && (
+          <>
+            <div className="border-t border-gray-800 my-4"></div>
+            <div className="mb-4">
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-3 px-3">Admin</p>
+            </div>
+            {adminItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
+                    isActive(item.path)
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
+                      : 'text-gray-400 hover:text-white hover:bg-dark-hover'
+                  }`}
+                >
+                  <Icon className="text-lg" />
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              )
+            })}
+          </>
+        )}
 
         {user && (
           <>

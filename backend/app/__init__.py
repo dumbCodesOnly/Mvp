@@ -25,7 +25,7 @@ def create_app(config_class=Config):
     app.logger.info('Database and security extensions initialized')
     
     app.logger.info('Registering blueprints')
-    from app.routes import auth, miners, rentals, referrals, payments, stats
+    from app.routes import auth, miners, rentals, referrals, payments, stats, admin
     
     app.register_blueprint(auth.bp)
     app.register_blueprint(miners.bp)
@@ -33,6 +33,7 @@ def create_app(config_class=Config):
     app.register_blueprint(referrals.bp)
     app.register_blueprint(payments.bp)
     app.register_blueprint(stats.bp)
+    app.register_blueprint(admin.bp)
     app.logger.info('All blueprints registered successfully')
     
     @app.route('/api/health')
