@@ -143,10 +143,25 @@ All models use SQLAlchemy ORM with foreign key relationships and lazy loading fo
 
 ## Development Notes
 
+**Replit Workflow Setup (IMPORTANT):**
+
+When importing this project into Replit, set up **two separate workflows** to avoid restart issues:
+
+1. **Backend API** workflow:
+   - Command: `cd backend && gunicorn --bind 0.0.0.0:3000 --reuse-port --reload run:app`
+   - Output type: Console
+   - Port: 3000
+
+2. **Frontend** workflow:
+   - Command: `cd frontend && npm run dev`
+   - Output type: Webview
+   - Port: 5000
+
+**Do NOT combine both servers into a single workflow with background processes** (using `&`). This causes restart issues where processes don't get properly terminated.
+
 **Running the Application:**
 - Frontend: Vite dev server on port 5000 (proxies /api to backend)
 - Backend: Flask dev server on port 3000
-- Start both: `cd backend && python run.py & cd frontend && npm run dev`
 
 **Test Credentials:**
 - Admin: admin@cloudminer.com / admin123
