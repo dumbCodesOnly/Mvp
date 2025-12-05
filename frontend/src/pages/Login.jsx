@@ -1,26 +1,28 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../components/Toast'
 import { FaBitcoin } from 'react-icons/fa'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
+  const toast = useToast()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
 
     try {
       await login(email, password)
+      toast.success('Welcome back!', 'Login Successful')
       navigate('/')
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to login')
+      toast.error(err.response?.data?.error || 'Failed to login', 'Login Failed')
     } finally {
       setLoading(false)
     }
@@ -28,9 +30,9 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-dark-bg px-4">
-      <div className="max-w-md w-full">
+      <div className="max-w-md w-full animate-fade-in-up">
         <div className="text-center mb-8">
-          <FaBitcoin className="text-6xl text-yellow-500 mx-auto mb-4" />
+          <FaBitcoin className="text-6xl text-yellow-500 mx-auto mb-4 animate-bounce-slow" />
           <h1 className="text-4xl font-bold mb-2">
             <span className="bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent">
               CloudMiner
@@ -39,14 +41,8 @@ const Login = () => {
           <p className="text-gray-400">Sign in to your account</p>
         </div>
 
-        <div className="glass-card p-8 rounded-2xl">
+        <div className="glass-card p-8 rounded-2xl hover-glow">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-red-900/30 border border-red-500 text-red-300 px-4 py-3 rounded-lg">
-                {error}
-              </div>
-            )}
-
             <div>
               <label className="block text-sm font-medium mb-2">Email</label>
               <input
@@ -54,7 +50,7 @@ const Login = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-dark-card border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 transition"
+                className="w-full bg-dark-card border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 transition-all duration-200"
                 placeholder="your@email.com"
               />
             </div>
@@ -66,7 +62,7 @@ const Login = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-dark-card border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 transition"
+                className="w-full bg-dark-card border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 transition-all duration-200"
                 placeholder="••••••••"
               />
             </div>
@@ -74,15 +70,22 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-primary hover:opacity-90 py-3 rounded-lg font-semibold transition disabled:opacity-50"
+              className="w-full bg-gradient-primary hover:opacity-90 py-3 rounded-lg font-semibold btn-transition disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? (
+                <>
+                  <LoadingSpinner size="sm" />
+                  <span>Signing in...</span>
+                </>
+              ) : (
+                'Sign In'
+              )}
             </button>
           </form>
 
           <p className="text-center text-gray-400 mt-6">
             Don't have an account?{' '}
-            <Link to="/register" className="text-purple-400 hover:text-purple-300">
+            <Link to="/register" className="text-purple-400 hover:text-purple-300 transition-colors">
               Register here
             </Link>
           </p>

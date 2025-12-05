@@ -25,11 +25,14 @@ def get_cached_or_fetch(key, fetch_func):
 def get_btc_price():
     def fetch():
         try:
-            logger.info('Fetching BTC price from CoinDesk API')
-            response = requests.get('https://api.coindesk.com/v1/bpi/currentprice.json', timeout=10)
+            logger.info('Fetching BTC price from CoinGecko API')
+            response = requests.get(
+                'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',
+                timeout=10
+            )
             response.raise_for_status()
             data = response.json()
-            price = float(data['bpi']['USD']['rate'].replace(',', ''))
+            price = float(data['bitcoin']['usd'])
             logger.info(f'BTC price fetched successfully: ${price:,.2f}')
             return price
         except Exception as e:
