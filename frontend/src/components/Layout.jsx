@@ -1,10 +1,14 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { FaBitcoin, FaChartLine, FaServer, FaUsers, FaSignOutAlt } from 'react-icons/fa'
+import { FaBitcoin, FaChartLine, FaServer, FaUsers, FaSignOutAlt, FaBars, FaTimes, FaGift } from 'react-icons/fa'
+import { useState } from 'react'
+import Footer from './Footer'
+import Sidebar from './Sidebar'
 
 const Layout = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -12,8 +16,8 @@ const Layout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg">
-      <nav className="bg-dark-card border-b border-gray-800">
+    <div className="min-h-screen bg-dark-bg flex flex-col">
+      <nav className="bg-dark-card border-b border-gray-800 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -32,9 +36,14 @@ const Layout = () => {
                   <FaServer /> Miners
                 </Link>
                 {user && (
-                  <Link to="/rentals" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2">
-                    <FaUsers /> My Rentals
-                  </Link>
+                  <>
+                    <Link to="/rentals" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2">
+                      <FaUsers /> My Rentals
+                    </Link>
+                    <Link to="/referrals" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2">
+                      <FaGift /> Referrals
+                    </Link>
+                  </>
                 )}
               </div>
             </div>
@@ -42,12 +51,12 @@ const Layout = () => {
             <div className="flex items-center space-x-4">
               {user ? (
                 <>
-                  <span className="text-sm text-gray-400">{user.email}</span>
+                  <span className="hidden sm:block text-sm text-gray-400">{user.email}</span>
                   <button
                     onClick={handleLogout}
                     className="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium transition"
                   >
-                    <FaSignOutAlt /> Logout
+                    <FaSignOutAlt /> <span className="hidden sm:inline">Logout</span>
                   </button>
                 </>
               ) : (
@@ -60,14 +69,67 @@ const Layout = () => {
                   </Link>
                 </>
               )}
+              
+              <button
+                className="md:hidden text-gray-300 hover:text-white"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <FaTimes className="text-xl" /> : <FaBars className="text-xl" />}
+              </button>
             </div>
           </div>
         </div>
+        
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-dark-card border-t border-gray-800">
+            <div className="px-4 py-3 space-y-2">
+              <Link 
+                to="/" 
+                className="flex items-center gap-2 text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <FaChartLine /> Dashboard
+              </Link>
+              <Link 
+                to="/miners" 
+                className="flex items-center gap-2 text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <FaServer /> Miners
+              </Link>
+              {user && (
+                <>
+                  <Link 
+                    to="/rentals" 
+                    className="flex items-center gap-2 text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FaUsers /> My Rentals
+                  </Link>
+                  <Link 
+                    to="/referrals" 
+                    className="flex items-center gap-2 text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FaGift /> Referrals
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Outlet />
-      </main>
+      <div className="flex flex-1">
+        <Sidebar />
+        <main className="flex-1 w-full lg:pl-4 px-4 sm:px-6 lg:px-8 py-8 overflow-x-hidden">
+          <div className="max-w-6xl mx-auto">
+            <Outlet />
+          </div>
+        </main>
+      </div>
+      
+      <Footer />
     </div>
   )
 }

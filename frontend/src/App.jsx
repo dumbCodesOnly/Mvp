@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Miners from './pages/Miners'
 import MyRentals from './pages/MyRentals'
+import Referrals from './pages/Referrals'
 import Login from './pages/Login'
 import Register from './pages/Register'
 
@@ -18,6 +19,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="miners" element={<Miners />} />
             <Route path="rentals" element={<MyRentals />} />
+            <Route path="referrals" element={<Referrals />} />
           </Route>
         </Routes>
       </Router>

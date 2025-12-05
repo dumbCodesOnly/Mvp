@@ -31,6 +31,10 @@ def get_referral_stats():
     current_app.logger.debug(f'Fetching referral stats for user ID: {user_id}')
     user = User.query.get(user_id)
     
+    if not user:
+        current_app.logger.error(f'User not found for ID: {user_id}')
+        return jsonify({'error': 'User not found'}), 404
+    
     referrals = Referral.query.filter_by(referrer_id=user_id).all()
     total_commission = sum(ref.commission_earned_usd for ref in referrals)
     

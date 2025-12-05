@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { FaBitcoin, FaNetworkWired, FaCube } from 'react-icons/fa'
+import { useAuth } from '../context/AuthContext'
+import UserStats from '../components/UserStats'
+import PriceChart from '../components/PriceChart'
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
+  const { user } = useAuth()
 
   useEffect(() => {
     fetchNetworkStats()
@@ -91,6 +95,10 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {user && <UserStats user={user} />}
+
+      <PriceChart currentPrice={stats?.btc_price} />
+
       <div className="glass-card p-8 rounded-2xl text-center">
         <h2 className="text-3xl font-bold mb-4">Ready to Start Mining?</h2>
         <p className="text-gray-400 mb-6 max-w-2xl mx-auto">
@@ -101,9 +109,11 @@ const Dashboard = () => {
           <a href="/miners" className="bg-gradient-primary hover:opacity-90 px-8 py-3 rounded-lg font-semibold transition">
             Browse Miners
           </a>
-          <a href="/register" className="glass-card hover:bg-dark-hover px-8 py-3 rounded-lg font-semibold transition">
-            Create Account
-          </a>
+          {!user && (
+            <a href="/register" className="glass-card hover:bg-dark-hover px-8 py-3 rounded-lg font-semibold transition">
+              Create Account
+            </a>
+          )}
         </div>
       </div>
 

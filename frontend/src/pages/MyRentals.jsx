@@ -4,10 +4,12 @@ import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { FaServer, FaCheckCircle, FaClock } from 'react-icons/fa'
 import { format } from 'date-fns'
+import EarningsChart from '../components/EarningsChart'
 
 const MyRentals = () => {
   const [rentals, setRentals] = useState([])
   const [loading, setLoading] = useState(true)
+  const [btcPrice, setBtcPrice] = useState(50000)
   const { user } = useAuth()
   const navigate = useNavigate()
 
@@ -17,6 +19,7 @@ const MyRentals = () => {
       return
     }
     fetchRentals()
+    fetchBtcPrice()
   }, [user])
 
   const fetchRentals = async () => {
@@ -27,6 +30,15 @@ const MyRentals = () => {
     } catch (error) {
       console.error('Failed to fetch rentals:', error)
       setLoading(false)
+    }
+  }
+
+  const fetchBtcPrice = async () => {
+    try {
+      const response = await axios.get('/api/stats/network')
+      setBtcPrice(response.data?.btc_price || 50000)
+    } catch (error) {
+      console.error('Failed to fetch BTC price:', error)
     }
   }
 
@@ -54,6 +66,8 @@ const MyRentals = () => {
     )
   }
 
+  const totalEarnings = rentals.reduce((sum, r) => sum + r.total_profit_btc, 0)
+
   return (
     <div className="space-y-8">
       <div>
@@ -75,12 +89,18 @@ const MyRentals = () => {
         <div className="glass-card p-6 rounded-xl">
           <p className="text-sm text-gray-400 mb-2">Total Earnings</p>
           <p className="text-3xl font-bold text-green-400">
-            {rentals.reduce((sum, r) => sum + r.total_profit_btc, 0).toFixed(8)} BTC
+            {totalEarnings.toFixed(8)} BTC
+          </p>
+          <p className="text-sm text-gray-400">
+            ≈ ${(totalEarnings * btcPrice).toLocaleString(undefined, { maximumFractionDigits: 2 })}
           </p>
         </div>
       </div>
 
+      <EarningsChart rentals={rentals} btcPrice={btcPrice} />
+
       <div className="space-y-4">
+        <h2 className="text-xl font-bold">Your Contracts</h2>
         {rentals.map((rental) => (
           <div key={rental.id} className="glass-card p-6 rounded-xl">
             <div className="flex items-center justify-between mb-4">
@@ -126,6 +146,9 @@ const MyRentals = () => {
               <div>
                 <p className="text-sm text-gray-400">Profit Earned</p>
                 <p className="font-semibold text-green-400">{rental.total_profit_btc.toFixed(8)} BTC</p>
+                <p className="text-xs text-gray-500">
+                  ≈ ${(rental.total_profit_btc * btcPrice).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                </p>
               </div>
             </div>
           </div>
