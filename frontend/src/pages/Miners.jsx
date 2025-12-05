@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import { FaServer, FaBolt, FaDollarSign, FaFilter, FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa'
 
 const Miners = () => {
+  const navigate = useNavigate()
+  const { user } = useAuth()
   const [miners, setMiners] = useState([])
   const [filteredMiners, setFilteredMiners] = useState([])
   const [loading, setLoading] = useState(true)
@@ -292,8 +296,23 @@ const Miners = () => {
             Maintenance fee of 5% already deducted.
           </p>
           
-          <button className="bg-gradient-primary hover:opacity-90 px-8 py-3 rounded-lg font-semibold transition">
-            Rent This Miner
+          <button 
+            onClick={() => {
+              if (!user) {
+                navigate('/login')
+              } else {
+                navigate('/checkout', { 
+                  state: { 
+                    miner: selectedMiner, 
+                    hashrate: selectedMiner.hashrate_th, 
+                    duration: filters.duration 
+                  } 
+                })
+              }
+            }}
+            className="bg-gradient-primary hover:opacity-90 px-8 py-3 rounded-lg font-semibold transition"
+          >
+            {user ? 'Rent This Miner' : 'Login to Rent'}
           </button>
         </div>
       )}

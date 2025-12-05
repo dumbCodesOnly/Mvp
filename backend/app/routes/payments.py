@@ -1,10 +1,137 @@
 import logging
+import secrets
+from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
-from app.models import Payment, Rental
+from app.models import Payment, Rental, Miner, User, Referral, Payout
 
 bp = Blueprint('payments', __name__, url_prefix='/api/payments')
+
+
+@bp.route('/checkout', methods=['POST'])
+@jwt_required()
+def checkout():
+    user_id = int(get_jwt_identity())
+    current_app.logger.info(f'=== Checkout Request by User ID: {user_id} ===')
+    data = request.get_json()
+    
+    miner_id = data.get('miner_id')
+    hashrate = data.get('hashrate_allocated')
+    duration_days = data.get('duration_days', 30)
+    crypto_type = data.get('crypto_type', 'BTC')
+    
+    miner = Miner.query.get(miner_id)
+    if not miner:
+        return jsonify({'error': 'Miner not found'}), 404
+    
+    if miner.available_units <= 0:
+        return jsonify({'error': 'No units available for this miner'}), 400
+    
+    if hashrate is None:
+        hashrate = miner.hashrate_th
+    
+    hashrate_ratio = hashrate / miner.hashrate_th
+    total_price = miner.price_usd * hashrate_ratio * (duration_days / 30)
+    monthly_fee = miner.price_usd * 0.05 * hashrate_ratio
+    
+    rental = Rental(
+        user_id=user_id,
+        miner_id=miner_id,
+        hashrate_allocated=hashrate,
+        duration_days=duration_days,
+        monthly_fee_usd=monthly_fee,
+        is_active=False
+    )
+    db.session.add(rental)
+    db.session.flush()
+    
+    payment = Payment(
+        user_id=user_id,
+        rental_id=rental.id,
+        amount_usd=round(total_price, 2),
+        crypto_type=crypto_type,
+        status='pending'
+    )
+    db.session.add(payment)
+    db.session.commit()
+    
+    current_app.logger.info(f'Checkout completed: Rental ID={rental.id}, Payment ID={payment.id}, Amount=${total_price:.2f}')
+    
+    return jsonify({
+        'rental': rental.to_dict(),
+        'payment': payment.to_dict(),
+        'miner': miner.to_dict(),
+        'total_price_usd': round(total_price, 2),
+        'message': 'Order created successfully. Complete payment to activate your rental.'
+    }), 201
+
+
+@bp.route('/<int:payment_id>/simulate-confirm', methods=['PUT'])
+@jwt_required()
+def simulate_payment_confirm(payment_id):
+    user_id = int(get_jwt_identity())
+    current_app.logger.info(f'=== Simulate Payment Confirmation: {payment_id} by User {user_id} ===')
+    
+    payment = Payment.query.get(payment_id)
+    if not payment:
+        return jsonify({'error': 'Payment not found'}), 404
+    
+    if payment.user_id != user_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    if payment.status == 'confirmed':
+        return jsonify({'error': 'Payment already confirmed'}), 400
+    
+    payment.status = 'confirmed'
+    payment.confirmed_at = datetime.utcnow()
+    payment.tx_hash = f'sim_{secrets.token_hex(32)}'
+    
+    if payment.rental_id:
+        rental = Rental.query.get(payment.rental_id)
+        if rental:
+            rental.is_active = True
+            rental.start_date = datetime.utcnow()
+            rental.end_date = rental.start_date + timedelta(days=rental.duration_days)
+            
+            miner = Miner.query.get(rental.miner_id)
+            if miner and miner.available_units > 0:
+                miner.available_units -= 1
+            
+            rental_user = User.query.get(rental.user_id)
+            if rental_user and rental_user.referred_by:
+                referral_percent = current_app.config.get('REFERRAL_PERCENT', 3.0)
+                if miner:
+                    commission_amount = (payment.amount_usd * referral_percent) / 100
+                    
+                    referral = Referral.query.filter_by(
+                        referrer_id=rental_user.referred_by,
+                        referred_id=rental_user.id
+                    ).first()
+                    
+                    if referral:
+                        referral.commission_earned_usd += commission_amount
+                        
+                        payout = Payout(
+                            user_id=rental_user.referred_by,
+                            referral_id=referral.id,
+                            rental_id=rental.id,
+                            amount_usd=commission_amount,
+                            payout_type='referral_commission',
+                            status='pending'
+                        )
+                        db.session.add(payout)
+                        current_app.logger.info(f'Referral commission credited: ${commission_amount:.2f} to user {rental_user.referred_by}')
+            
+            current_app.logger.info(f'Rental activated: ID={rental.id}')
+    
+    db.session.commit()
+    
+    return jsonify({
+        'message': 'Payment confirmed and rental activated',
+        'payment': payment.to_dict()
+    }), 200
+
 
 @bp.route('/', methods=['POST'])
 @jwt_required()

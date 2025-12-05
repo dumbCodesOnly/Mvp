@@ -110,7 +110,25 @@ All models use SQLAlchemy ORM with foreign key relationships and lazy loading fo
 
 ## Recent Changes
 
-**December 5, 2025:**
+**December 5, 2025 (Latest):**
+- Completed Phase 4 (Referral System): Added automated commission payout logic
+  - New Payout model for tracking referral commissions
+  - Automatic commission crediting when rentals are activated
+  - Admin payout management routes (view, process individual, process all)
+  - User payout viewing in referral stats
+- Completed Phase 5 (Payment Integration): Full checkout flow
+  - POST `/api/payments/checkout` - Create rental and payment order
+  - PUT `/api/payments/:id/simulate-confirm` - Simulate payment confirmation for testing
+  - Checkout page with miner details, crypto selection, order confirmation
+  - Payments page showing payment history with status badges
+  - Auto-activate rentals and credit referral commission on payment confirmation
+- Completed Phase 8 (Deployment): Production configuration
+  - Created `render.yaml` for Render deployment
+  - Created `Procfile` for gunicorn production server
+- Fixed database initialization: Tables now created on app startup via gunicorn
+- Added Payments link to sidebar navigation
+
+**December 5, 2025 (Earlier):**
 - Completed Phase 6 (Admin Panel): Full admin dashboard with stats, miner CRUD management, user management with search/pagination
   - Admin-only route protection with `@admin_required` decorator
   - Dashboard stats: total users, miners, rentals, revenue, active hashrate
@@ -149,8 +167,21 @@ All models use SQLAlchemy ORM with foreign key relationships and lazy loading fo
 - `DELETE /api/admin/miners/:id` - Delete miner
 - `GET /api/admin/rentals` - List all rentals
 - `GET /api/admin/payments` - List all payments
+- `GET /api/admin/payouts` - List all payouts with pending total
+- `PUT /api/admin/payouts/:id/process` - Process individual payout
+- `PUT /api/admin/payouts/process-all` - Process all pending payouts
+
+**Payment API Endpoints:**
+- `POST /api/payments/checkout` - Create rental order with payment
+- `PUT /api/payments/:id/simulate-confirm` - Simulate payment confirmation
+- `GET /api/payments/user` - Get user's payment history
+- `GET /api/payments/:id` - Get payment details
+
+**Referral API Endpoints:**
+- `GET /api/referrals/` - Get user's referrals
+- `GET /api/referrals/stats` - Get referral stats with pending/paid amounts
+- `GET /api/referrals/payouts` - Get user's payout history
 
 **Next Phases:**
-- Phase 5: Payment Integration (Stripe/Crypto)
-- Phase 7: Advanced Features (Maintenance windows, notifications)
-- Phase 8: Deployment
+- Phase 7: Advanced Features (Email notifications, animations)
+- PWA and Capacitor setup for mobile

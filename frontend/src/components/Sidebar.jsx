@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { FaChartLine, FaServer, FaUsers, FaGift, FaCog, FaWallet, FaShieldAlt } from 'react-icons/fa'
+import { FaChartLine, FaServer, FaUsers, FaGift, FaCog, FaWallet, FaShieldAlt, FaCreditCard } from 'react-icons/fa'
 
 const Sidebar = () => {
   const { user } = useAuth()
@@ -10,6 +10,7 @@ const Sidebar = () => {
     { path: '/', label: 'Dashboard', icon: FaChartLine, requiresAuth: false },
     { path: '/miners', label: 'Miners', icon: FaServer, requiresAuth: false },
     { path: '/rentals', label: 'My Rentals', icon: FaWallet, requiresAuth: true },
+    { path: '/payments', label: 'Payments', icon: FaCreditCard, requiresAuth: true },
     { path: '/referrals', label: 'Referrals', icon: FaGift, requiresAuth: true },
   ]
 
