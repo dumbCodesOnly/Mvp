@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api/config'
 import { FaBitcoin, FaNetworkWired, FaCube } from 'react-icons/fa'
 import { useAuth } from '../context/AuthContext'
 import UserStats from '../components/UserStats'
@@ -19,7 +19,7 @@ const Dashboard = () => {
 
   const fetchNetworkStats = async () => {
     try {
-      const response = await axios.get('/api/stats/network')
+      const response = await api.get('/api/stats/network')
       setStats(response.data)
       setLoading(false)
     } catch (error) {

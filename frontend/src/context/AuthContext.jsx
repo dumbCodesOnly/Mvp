@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext } from 'react'
-import axios from 'axios'
+import api from '../api/config'
 
 const AuthContext = createContext()
 
@@ -12,7 +12,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       fetchProfile()
     } else {
       setLoading(false)
@@ -21,7 +20,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get('/api/auth/profile')
+      const response = await api.get('/api/auth/profile')
       setUser(response.data)
     } catch (error) {
       console.error('Failed to fetch profile:', error)
@@ -32,17 +31,16 @@ export const AuthProvider = ({ children }) => {
   }
 
   const login = async (email, password) => {
-    const response = await axios.post('/api/auth/login', { email, password })
+    const response = await api.post('/api/auth/login', { email, password })
     const { access_token, user } = response.data
     localStorage.setItem('token', access_token)
     setToken(access_token)
     setUser(user)
-    axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
     return user
   }
 
   const register = async (email, password, referralCode = '') => {
-    const response = await axios.post('/api/auth/register', {
+    const response = await api.post('/api/auth/register', {
       email,
       password,
       referral_code: referralCode
@@ -51,7 +49,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('token', access_token)
     setToken(access_token)
     setUser(user)
-    axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
     return user
   }
 
@@ -59,7 +56,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token')
     setToken(null)
     setUser(null)
-    delete axios.defaults.headers.common['Authorization']
   }
 
   const value = {

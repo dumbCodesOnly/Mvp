@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaBitcoin, FaEthereum, FaCheck, FaSpinner, FaCopy, FaArrowLeft } from 'react-icons/fa';
-import axios from 'axios';
+import api from '../api/config';
 
 const Checkout = () => {
   const location = useLocation();
@@ -37,14 +37,11 @@ const Checkout = () => {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post('/api/payments/checkout', {
+      const response = await api.post('/api/payments/checkout', {
         miner_id: miner.id,
         hashrate_allocated: hashrate,
         duration_days: duration,
         crypto_type: selectedCrypto
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
 
       setOrder(response.data);
@@ -61,10 +58,7 @@ const Checkout = () => {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.put(`/api/payments/${order.payment.id}/simulate-confirm`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.put(`/api/payments/${order.payment.id}/simulate-confirm`);
 
       navigate('/rentals', { state: { success: true, message: 'Payment confirmed! Your mining contract is now active.' } });
     } catch (err) {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api/config'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { FaGift, FaUsers, FaDollarSign, FaCopy, FaCheck, FaShare } from 'react-icons/fa'
@@ -24,8 +24,8 @@ const Referrals = () => {
   const fetchReferralData = async () => {
     try {
       const [statsRes, referralsRes] = await Promise.all([
-        axios.get('/api/referrals/stats'),
-        axios.get('/api/referrals/')
+        api.get('/api/referrals/stats'),
+        api.get('/api/referrals/')
       ])
       setStats(statsRes.data)
       setReferrals(referralsRes.data)

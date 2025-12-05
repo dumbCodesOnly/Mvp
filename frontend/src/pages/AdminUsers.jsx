@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api/config'
 import { FaUsers, FaSearch, FaShieldAlt, FaEnvelope, FaCalendar, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 
 const AdminUsers = () => {
@@ -19,7 +19,7 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const response = await axios.get('/api/admin/users', {
+      const response = await api.get('/api/admin/users', {
         params: { page: currentPage, search, per_page: 15 }
       })
       setUsers(response.data.users)
@@ -35,7 +35,7 @@ const AdminUsers = () => {
 
   const fetchUserDetails = async (userId) => {
     try {
-      const response = await axios.get(`/api/admin/users/${userId}`)
+      const response = await api.get(`/api/admin/users/${userId}`)
       setUserDetails(response.data)
       setSelectedUser(userId)
     } catch (err) {
@@ -47,7 +47,7 @@ const AdminUsers = () => {
     if (!window.confirm('Are you sure you want to toggle admin status for this user?')) return
     
     try {
-      await axios.put(`/api/admin/users/${userId}/toggle-admin`)
+      await api.put(`/api/admin/users/${userId}/toggle-admin`)
       fetchUsers()
       if (selectedUser === userId) {
         fetchUserDetails(userId)

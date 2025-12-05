@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/config';
 import { FaBitcoin, FaEthereum, FaCheck, FaClock, FaTimes, FaExternalLinkAlt } from 'react-icons/fa';
 import { format } from 'date-fns';
 
@@ -13,10 +13,7 @@ const Payments = () => {
 
   const fetchPayments = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/api/payments/user', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get('/api/payments/user');
       setPayments(response.data);
     } catch (error) {
       console.error('Failed to fetch payments:', error);

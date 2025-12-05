@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import axios from 'axios'
+import api from '../api/config'
 import { FaUsers, FaServer, FaWallet, FaDollarSign, FaBolt, FaClock, FaArrowRight } from 'react-icons/fa'
 
 const AdminDashboard = () => {
@@ -14,7 +14,7 @@ const AdminDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get('/api/admin/stats')
+      const response = await api.get('/api/admin/stats')
       setStats(response.data)
       setError(null)
     } catch (err) {

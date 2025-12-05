@@ -1,19 +1,26 @@
+import os
 import logging
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-from app.config import Config
+from werkzeug.middleware.proxy_fix import ProxyFix
+from app.config import config
 from app.logging_config import setup_logging
 
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
 
-def create_app(config_class=Config):
+def create_app(config_name=None):
+    if config_name is None:
+        config_name = os.environ.get('FLASK_ENV', 'default')
+    
     app = Flask(__name__)
-    app.config.from_object(config_class)
+    app.config.from_object(config[config_name])
+    
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
     
     setup_logging(app)
     

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api/config'
 import { FaPlus, FaEdit, FaTrash, FaServer, FaSave, FaTimes } from 'react-icons/fa'
 
 const AdminMiners = () => {
@@ -26,7 +26,7 @@ const AdminMiners = () => {
 
   const fetchMiners = async () => {
     try {
-      const response = await axios.get('/api/admin/miners')
+      const response = await api.get('/api/admin/miners')
       setMiners(response.data)
       setError(null)
     } catch (err) {
@@ -78,9 +78,9 @@ const AdminMiners = () => {
     e.preventDefault()
     try {
       if (editingMiner) {
-        await axios.put(`/api/admin/miners/${editingMiner.id}`, formData)
+        await api.put(`/api/admin/miners/${editingMiner.id}`, formData)
       } else {
-        await axios.post('/api/admin/miners', formData)
+        await api.post('/api/admin/miners', formData)
       }
       resetForm()
       fetchMiners()
@@ -94,7 +94,7 @@ const AdminMiners = () => {
     if (!window.confirm('Are you sure you want to delete this miner?')) return
     
     try {
-      await axios.delete(`/api/admin/miners/${minerId}`)
+      await api.delete(`/api/admin/miners/${minerId}`)
       fetchMiners()
     } catch (err) {
       if (err.response?.data?.error) {

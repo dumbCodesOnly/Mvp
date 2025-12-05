@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api/config'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { FaServer, FaCheckCircle, FaClock } from 'react-icons/fa'
@@ -24,7 +24,7 @@ const MyRentals = () => {
 
   const fetchRentals = async () => {
     try {
-      const response = await axios.get('/api/rentals/user')
+      const response = await api.get('/api/rentals/user')
       setRentals(response.data)
       setLoading(false)
     } catch (error) {
@@ -35,7 +35,7 @@ const MyRentals = () => {
 
   const fetchBtcPrice = async () => {
     try {
-      const response = await axios.get('/api/stats/network')
+      const response = await api.get('/api/stats/network')
       setBtcPrice(response.data?.btc_price || 50000)
     } catch (error) {
       console.error('Failed to fetch BTC price:', error)

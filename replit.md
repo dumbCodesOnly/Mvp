@@ -265,7 +265,31 @@ This creates:
 - Phase 1-6: Core functionality (Auth, Miners, Rentals, Referrals, Payments, Admin)
 - Phase 7: Advanced Features (Animations, Toast notifications, Loading states)
 - Phase 8: Deployment configuration (Render, Gunicorn)
+- Phase 9: Production deployment and Android app setup (Capacitor)
 
-**Next Phases:**
-- PWA and Capacitor setup for mobile
-- Email notifications (optional enhancement)
+## Android App (Capacitor)
+
+The project is configured to build an Android APK using Capacitor.
+
+**Setup:**
+- Capacitor is installed and configured in `frontend/`
+- Android platform added at `frontend/android/`
+- App ID: `com.cloudminer.app`
+- App Name: CloudMiner
+
+**Building the Android APK:**
+1. Set the production API URL: `export VITE_API_URL=https://your-deployed-url`
+2. Build the web app: `cd frontend && npm run build`
+3. Sync with Android: `npx cap sync android`
+4. Open in Android Studio: `npx cap open android`
+5. Build APK: Build → Build Bundle(s) / APK(s) → Build APK(s)
+
+See `ANDROID_BUILD.md` for detailed instructions.
+
+## Production Deployment (Replit)
+
+The app is configured for Replit autoscale deployment:
+- Build command: `cd frontend && npm run build`
+- Run command: `cd backend && gunicorn --bind 0.0.0.0:5000 --reuse-port run:app`
+
+Click "Publish" in Replit to deploy the production app.

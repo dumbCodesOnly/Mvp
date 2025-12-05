@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api/config'
 import { FaServer, FaBitcoin, FaFileContract, FaChartLine } from 'react-icons/fa'
 
 const UserStats = ({ user }) => {
@@ -14,14 +14,14 @@ const UserStats = ({ user }) => {
 
   const fetchUserStats = async () => {
     try {
-      const response = await axios.get('/api/rentals/user')
+      const response = await api.get('/api/rentals/user')
       const rentals = response.data || []
       
       const activeRentals = rentals.filter(r => r.is_active)
       const totalHashrate = activeRentals.reduce((sum, r) => sum + r.hashrate_allocated, 0)
       const totalEarnings = rentals.reduce((sum, r) => sum + r.total_profit_btc, 0)
       
-      const networkResponse = await axios.get('/api/stats/network')
+      const networkResponse = await api.get('/api/stats/network')
       const btcPrice = networkResponse.data?.btc_price || 50000
       
       const dailyBtcEstimate = totalHashrate * 0.00000005

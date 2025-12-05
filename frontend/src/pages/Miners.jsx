@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import axios from 'axios'
+import api from '../api/config'
 import { FaServer, FaBolt, FaDollarSign, FaFilter, FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa'
 
 const Miners = () => {
@@ -32,7 +32,7 @@ const Miners = () => {
 
   const fetchMiners = async () => {
     try {
-      const response = await axios.get('/api/miners/')
+      const response = await api.get('/api/miners/')
       setMiners(response.data)
       setLoading(false)
     } catch (error) {
@@ -72,7 +72,7 @@ const Miners = () => {
 
   const fetchEstimate = async (minerId, hashrate) => {
     try {
-      const response = await axios.post(`/api/miners/${minerId}/estimate`, {
+      const response = await api.post(`/api/miners/${minerId}/estimate`, {
         hashrate,
         duration_days: filters.duration
       })
