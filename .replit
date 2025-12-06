@@ -17,15 +17,31 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start application"
+args = "Backend API"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Frontend"
 
 [[workflows.workflow]]
-name = "Start application"
+name = "Backend API"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd backend && gunicorn --bind 0.0.0.0:3000 --reuse-port --reload run:app & cd frontend && npm run dev"
+args = "cd backend && gunicorn --bind 0.0.0.0:3000 --reuse-port --reload run:app"
+waitForPort = 3000
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Frontend"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd frontend && npm run dev"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
@@ -34,10 +50,6 @@ outputType = "webview"
 [[ports]]
 localPort = 3000
 externalPort = 3000
-
-[[ports]]
-localPort = 5000
-externalPort = 80
 
 [[ports]]
 localPort = 33563
@@ -82,6 +94,10 @@ externalPort = 5000
 [[ports]]
 localPort = 45555
 externalPort = 8000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
 
 [deployment]
 deploymentTarget = "autoscale"
