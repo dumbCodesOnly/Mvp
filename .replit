@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "python-3.11", "web"]
+modules = ["nodejs-20", "python-3.11", "web", "java-graalvm22.3"]
 [agent]
 expertMode = true
 integrations = ["python_database:1.0.0", "flask_authentication:1.0.0"]
@@ -64,6 +64,10 @@ localPort = 34525
 externalPort = 6000
 
 [[ports]]
+localPort = 35475
+externalPort = 6800
+
+[[ports]]
 localPort = 35957
 externalPort = 4200
 
@@ -85,5 +89,5 @@ externalPort = 5000
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["bash", "-c", "cd backend && gunicorn --bind 0.0.0.0:5000 --reuse-port run:app"]
+run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
 build = ["bash", "-c", "cd frontend && npm run build"]
