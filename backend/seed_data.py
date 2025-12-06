@@ -4,8 +4,14 @@ from app.models import Miner, User
 
 app = create_app()
 
-ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@cloudminer.com')
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+
+if not ADMIN_EMAIL or not ADMIN_PASSWORD:
+    raise RuntimeError(
+        "ADMIN_EMAIL and ADMIN_PASSWORD environment variables are required. "
+        "Please set them before running the seed script."
+    )
 
 with app.app_context():
     db.create_all()
