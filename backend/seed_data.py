@@ -1,7 +1,11 @@
+import os
 from app import create_app, db
 from app.models import Miner, User
 
 app = create_app()
+
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@cloudminer.com')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
 
 with app.app_context():
     db.create_all()
@@ -80,11 +84,11 @@ with app.app_context():
             db.session.add(miner)
         
         admin_user = User(
-            email='admin@cloudminer.com',
+            email=ADMIN_EMAIL,
             referral_code='ADMIN001',
             is_admin=True
         )
-        admin_user.set_password('admin123')
+        admin_user.set_password(ADMIN_PASSWORD)
         db.session.add(admin_user)
         
         db.session.commit()
