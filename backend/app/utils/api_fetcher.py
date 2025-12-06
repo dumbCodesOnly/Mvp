@@ -6,7 +6,7 @@ from threading import Lock
 logger = logging.getLogger(__name__)
 
 cache = {}
-CACHE_DURATION = timedelta(minutes=5)
+CACHE_DURATION = timedelta(minutes=10)
 
 class CircuitBreaker:
     def __init__(self, name, failure_threshold=5, recovery_timeout=60, half_open_max_calls=3):
@@ -72,6 +72,8 @@ class CircuitBreaker:
         }
 
 circuit_breakers = {
+    'binance': CircuitBreaker('binance', failure_threshold=3, recovery_timeout=60),
+    'coinbase': CircuitBreaker('coinbase', failure_threshold=3, recovery_timeout=60),
     'coingecko': CircuitBreaker('coingecko', failure_threshold=3, recovery_timeout=120),
     'blockchain_info': CircuitBreaker('blockchain_info', failure_threshold=3, recovery_timeout=60),
     'mempool': CircuitBreaker('mempool', failure_threshold=3, recovery_timeout=60)
@@ -98,44 +100,121 @@ def get_cached_or_fetch(key, fetch_func):
     cache[key] = (data, now)
     return data
 
+def _fetch_from_binance():
+    """Fetch BTC price from Binance API (primary source - very high rate limits)"""
+    cb = circuit_breakers['binance']
+    
+    if not cb.can_execute():
+        logger.debug('Circuit breaker OPEN for Binance API')
+        return None
+    
+    try:
+        logger.info('Fetching BTC price from Binance API')
+        response = requests.get(
+            'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT',
+            timeout=10
+        )
+        
+        if response.status_code == 429:
+            logger.warning('Binance API rate limited (429)')
+            cb.record_failure()
+            return None
+        
+        response.raise_for_status()
+        data = response.json()
+        price = float(data['price'])
+        logger.info(f'BTC price from Binance: ${price:,.2f}')
+        cb.record_success()
+        return price
+    except Exception as e:
+        logger.error(f"Error fetching from Binance: {e}")
+        cb.record_failure()
+        return None
+
+def _fetch_from_coinbase():
+    """Fetch BTC price from Coinbase API (secondary source - 10k requests/hour)"""
+    cb = circuit_breakers['coinbase']
+    
+    if not cb.can_execute():
+        logger.debug('Circuit breaker OPEN for Coinbase API')
+        return None
+    
+    try:
+        logger.info('Fetching BTC price from Coinbase API')
+        response = requests.get(
+            'https://api.coinbase.com/v2/prices/BTC-USD/spot',
+            timeout=10
+        )
+        
+        if response.status_code == 429:
+            logger.warning('Coinbase API rate limited (429)')
+            cb.record_failure()
+            return None
+        
+        response.raise_for_status()
+        data = response.json()
+        price = float(data['data']['amount'])
+        logger.info(f'BTC price from Coinbase: ${price:,.2f}')
+        cb.record_success()
+        return price
+    except Exception as e:
+        logger.error(f"Error fetching from Coinbase: {e}")
+        cb.record_failure()
+        return None
+
+def _fetch_from_coingecko():
+    """Fetch BTC price from CoinGecko API (tertiary fallback - limited rate)"""
+    cb = circuit_breakers['coingecko']
+    
+    if not cb.can_execute():
+        logger.debug('Circuit breaker OPEN for CoinGecko API')
+        return None
+    
+    try:
+        logger.info('Fetching BTC price from CoinGecko API')
+        response = requests.get(
+            'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',
+            timeout=10
+        )
+        
+        if response.status_code == 429:
+            logger.warning('CoinGecko API rate limited (429)')
+            cb.record_failure()
+            return None
+        
+        response.raise_for_status()
+        data = response.json()
+        price = float(data['bitcoin']['usd'])
+        logger.info(f'BTC price from CoinGecko: ${price:,.2f}')
+        cb.record_success()
+        return price
+    except Exception as e:
+        logger.error(f"Error fetching from CoinGecko: {e}")
+        cb.record_failure()
+        return None
+
 def get_btc_price():
     def fetch():
-        cb = circuit_breakers['coingecko']
-        
-        if not cb.can_execute():
-            logger.warning(f'Circuit breaker OPEN for CoinGecko API, using cached/fallback value')
-            if 'btc_price' in cache:
-                return cache['btc_price'][0]
-            return FALLBACK_VALUES['btc_price']
-        
-        try:
-            logger.info('Fetching BTC price from CoinGecko API')
-            response = requests.get(
-                'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',
-                timeout=10
-            )
-            
-            if response.status_code == 429:
-                logger.warning('CoinGecko API rate limited (429)')
-                cb.record_failure()
-                if 'btc_price' in cache:
-                    return cache['btc_price'][0]
-                return FALLBACK_VALUES['btc_price']
-            
-            response.raise_for_status()
-            data = response.json()
-            price = float(data['bitcoin']['usd'])
-            logger.info(f'BTC price fetched successfully: ${price:,.2f}')
-            cb.record_success()
+        price = _fetch_from_coinbase()
+        if price is not None:
             return price
-        except Exception as e:
-            logger.error(f"Error fetching BTC price: {e}", exc_info=True)
-            cb.record_failure()
-            if 'btc_price' in cache:
-                logger.warning('Using cached BTC price due to API error')
-                return cache['btc_price'][0]
-            logger.warning(f'Using fallback BTC price: ${FALLBACK_VALUES["btc_price"]:,.0f}')
-            return FALLBACK_VALUES['btc_price']
+        
+        logger.info('Coinbase unavailable, trying Binance...')
+        price = _fetch_from_binance()
+        if price is not None:
+            return price
+        
+        logger.info('Binance unavailable, trying CoinGecko...')
+        price = _fetch_from_coingecko()
+        if price is not None:
+            return price
+        
+        if 'btc_price' in cache:
+            logger.warning('All APIs failed, using cached BTC price')
+            return cache['btc_price'][0]
+        
+        logger.warning(f'Using fallback BTC price: ${FALLBACK_VALUES["btc_price"]:,.0f}')
+        return FALLBACK_VALUES['btc_price']
     
     return get_cached_or_fetch('btc_price', fetch)
 
