@@ -2,9 +2,18 @@ import os
 from datetime import timedelta
 
 
+def get_database_uri():
+    uri = os.environ.get('DATABASE_URL', '')
+    if uri.startswith('postgres://'):
+        uri = uri.replace('postgres://', 'postgresql+psycopg://', 1)
+    elif uri.startswith('postgresql://'):
+        uri = uri.replace('postgresql://', 'postgresql+psycopg://', 1)
+    return uri
+
+
 class Config:
     SECRET_KEY = os.environ.get('SESSION_SECRET') or os.environ.get('SECRET_KEY')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = get_database_uri()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or SECRET_KEY
