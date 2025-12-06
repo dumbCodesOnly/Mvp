@@ -83,7 +83,7 @@ All models use SQLAlchemy ORM with foreign key relationships and lazy loading fo
 
 **Python Packages:**
 - Flask ecosystem: SQLAlchemy, Migrate, JWT-Extended, CORS
-- psycopg2-binary for PostgreSQL connectivity
+- psycopg for PostgreSQL connectivity (Python 3.13 compatible)
 - Requests library for external API calls
 - Werkzeug for security utilities
 - Gunicorn for production WSGI server

@@ -26,7 +26,7 @@ A full-stack Bitcoin cloud mining simulator inspired by [Bitdeer](https://www.bi
 - [x] Install Python dependencies
   - Flask, Flask-SQLAlchemy, Flask-Migrate
   - Flask-JWT-Extended, Flask-CORS
-  - psycopg2-binary, python-dotenv, requests
+  - psycopg (Python 3.13 compatible), python-dotenv, requests
   - gunicorn (for production)
 
 #### 1.2 Database Models (PostgreSQL)
