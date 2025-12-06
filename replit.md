@@ -41,8 +41,14 @@ Preferred communication style: Simple, everyday language.
 All models use SQLAlchemy ORM with foreign key relationships and lazy loading for related data.
 
 **Business Logic:**
-- Real-time Bitcoin metrics fetched from public APIs (CoinDesk, Blockchain.info, Mempool.space)
+- Real-time Bitcoin metrics fetched from public APIs (CoinGecko, Blockchain.info, Mempool.space)
 - 5-minute caching layer to reduce API calls
+- Circuit breaker pattern for API resilience:
+  - Opens after 3 consecutive failures
+  - CoinGecko: 120s recovery timeout (rate limiting protection)
+  - Other APIs: 60s recovery timeout
+  - Returns cached/fallback values when circuit is open
+  - Half-open state for gradual recovery
 - Profit calculations based on actual network hashrate and difficulty
 - Maintenance fee system (5% default) and referral commissions (3% default)
 - ROI calculations considering block rewards and network share
