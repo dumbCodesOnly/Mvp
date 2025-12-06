@@ -216,14 +216,18 @@ Set up **two separate workflows** to avoid restart issues:
 **Do NOT combine both servers into a single workflow with background processes** (using `&`). This causes restart issues where processes don't get properly terminated.
 
 ### Step 5: Seed Database (Optional)
-To populate the database with sample miners and an admin user:
+To populate the database with sample miners and an admin user, first set the required environment variables:
 ```bash
+export ADMIN_EMAIL="your-admin-email@example.com"
+export ADMIN_PASSWORD="your-secure-password"
 cd backend && python seed_data.py
 ```
 
+**Important**: The `ADMIN_EMAIL` and `ADMIN_PASSWORD` environment variables are required. The script will fail if they are not set, preventing insecure default credentials.
+
 This creates:
 - 6 mining hardware plans
-- Admin user: admin@cloudminer.com / admin123
+- Admin user with your specified credentials
 
 ---
 
@@ -234,7 +238,7 @@ This creates:
 - Backend: Flask dev server on port 3000
 
 **Test Credentials:**
-- Admin: admin@cloudminer.com / admin123
+- Admin: Set via ADMIN_EMAIL and ADMIN_PASSWORD environment variables when running seed_data.py
 
 **Admin Panel Routes:**
 - `/admin` - Admin Dashboard with stats overview

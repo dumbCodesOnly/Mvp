@@ -79,6 +79,10 @@ externalPort = 8008
 localPort = 45419
 externalPort = 5000
 
+[[ports]]
+localPort = 45555
+externalPort = 8000
+
 [deployment]
 deploymentTarget = "autoscale"
 run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
