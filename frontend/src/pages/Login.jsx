@@ -18,9 +18,9 @@ const Login = () => {
     setLoading(true)
 
     try {
-      await login(email, password)
+      const user = await login(email, password)
       toast.success('Welcome back!', 'Login Successful')
-      navigate('/')
+      navigate(user.is_admin ? '/admin' : '/')
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to login', 'Login Failed')
     } finally {
