@@ -14,6 +14,8 @@ import Register from './pages/Register'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminMiners from './pages/AdminMiners'
 import AdminUsers from './pages/AdminUsers'
+import AdminSettings from './pages/AdminSettings'
+import AdminDatabase from './pages/AdminDatabase'
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
               <Route path="admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
               <Route path="admin/miners" element={<ProtectedRoute requireAdmin><AdminMiners /></ProtectedRoute>} />
               <Route path="admin/users" element={<ProtectedRoute requireAdmin><AdminUsers /></ProtectedRoute>} />
+              <Route path="admin/settings" element={<ProtectedRoute requireAdmin><AdminSettings /></ProtectedRoute>} />
+              <Route path="admin/database" element={<ProtectedRoute requireAdmin><AdminDatabase /></ProtectedRoute>} />
             </Route>
           </Routes>
         </Router>

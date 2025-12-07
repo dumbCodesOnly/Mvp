@@ -5,7 +5,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import func
 from app import db
 from datetime import datetime
-from app.models import User, Miner, Rental, Payment, Referral, Payout
+from app.models import User, Miner, Rental, Payment, Referral, Payout, SystemSettings
 
 bp = Blueprint('admin', __name__, url_prefix='/api/admin')
 
@@ -398,4 +398,294 @@ def process_all_pending_payouts():
         'message': f'Processed {len(pending_payouts)} payouts',
         'total_amount_usd': round(total_amount, 2),
         'count': len(pending_payouts)
+    }), 200
+
+
+@bp.route('/settings', methods=['GET'])
+@admin_required
+def get_settings():
+    current_app.logger.info('=== Admin Get Settings ===')
+    settings = SystemSettings.get_all_settings()
+    return jsonify(settings), 200
+
+
+@bp.route('/settings', methods=['PUT'])
+@admin_required
+def update_settings():
+    current_app.logger.info('=== Admin Update Settings ===')
+    data = request.get_json()
+    
+    updated = []
+    for key, value in data.items():
+        if isinstance(value, dict):
+            SystemSettings.set_setting(key, value.get('value', ''), value.get('description'))
+        else:
+            SystemSettings.set_setting(key, value)
+        updated.append(key)
+    
+    current_app.logger.info(f'Admin updated settings: {updated}')
+    return jsonify({
+        'message': 'Settings updated successfully',
+        'updated_keys': updated
+    }), 200
+
+
+@bp.route('/settings/<string:key>', methods=['PUT'])
+@admin_required
+def update_single_setting(key):
+    current_app.logger.info(f'=== Admin Update Setting: {key} ===')
+    data = request.get_json()
+    
+    value = data.get('value')
+    description = data.get('description')
+    
+    if value is None:
+        return jsonify({'error': 'Value is required'}), 400
+    
+    setting = SystemSettings.set_setting(key, value, description)
+    current_app.logger.info(f'Admin updated setting {key} = {value}')
+    
+    return jsonify({
+        'message': f'Setting {key} updated successfully',
+        'setting': setting.to_dict()
+    }), 200
+
+
+@bp.route('/users/<int:user_id>', methods=['DELETE'])
+@admin_required
+def delete_user(user_id):
+    current_app.logger.info(f'=== Admin Delete User: {user_id} ===')
+    
+    current_user_id = int(get_jwt_identity())
+    if current_user_id == user_id:
+        return jsonify({'error': 'Cannot delete your own account'}), 400
+    
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    Payout.query.filter_by(user_id=user_id).delete()
+    Referral.query.filter_by(referrer_id=user_id).delete()
+    Referral.query.filter_by(referred_id=user_id).delete()
+    Payment.query.filter_by(user_id=user_id).delete()
+    Rental.query.filter_by(user_id=user_id).delete()
+    
+    db.session.delete(user)
+    db.session.commit()
+    
+    current_app.logger.info(f'Admin deleted user ID: {user_id}')
+    return jsonify({'message': 'User and all related data deleted successfully'}), 200
+
+
+@bp.route('/rentals/<int:rental_id>', methods=['DELETE'])
+@admin_required
+def delete_rental(rental_id):
+    current_app.logger.info(f'=== Admin Delete Rental: {rental_id} ===')
+    
+    rental = Rental.query.get(rental_id)
+    if not rental:
+        return jsonify({'error': 'Rental not found'}), 404
+    
+    Payment.query.filter_by(rental_id=rental_id).delete()
+    Payout.query.filter_by(rental_id=rental_id).delete()
+    
+    db.session.delete(rental)
+    db.session.commit()
+    
+    current_app.logger.info(f'Admin deleted rental ID: {rental_id}')
+    return jsonify({'message': 'Rental and related payments deleted successfully'}), 200
+
+
+@bp.route('/payments/<int:payment_id>', methods=['DELETE'])
+@admin_required
+def delete_payment(payment_id):
+    current_app.logger.info(f'=== Admin Delete Payment: {payment_id} ===')
+    
+    payment = Payment.query.get(payment_id)
+    if not payment:
+        return jsonify({'error': 'Payment not found'}), 404
+    
+    db.session.delete(payment)
+    db.session.commit()
+    
+    current_app.logger.info(f'Admin deleted payment ID: {payment_id}')
+    return jsonify({'message': 'Payment deleted successfully'}), 200
+
+
+@bp.route('/payments/<int:payment_id>/status', methods=['PUT'])
+@admin_required
+def update_payment_status(payment_id):
+    current_app.logger.info(f'=== Admin Update Payment Status: {payment_id} ===')
+    
+    payment = Payment.query.get(payment_id)
+    if not payment:
+        return jsonify({'error': 'Payment not found'}), 404
+    
+    data = request.get_json()
+    new_status = data.get('status')
+    
+    if new_status not in ['pending', 'confirmed', 'failed', 'refunded']:
+        return jsonify({'error': 'Invalid status'}), 400
+    
+    payment.status = new_status
+    if new_status == 'confirmed':
+        payment.confirmed_at = datetime.utcnow()
+        if payment.rental:
+            payment.rental.is_active = True
+            payment.rental.start_date = datetime.utcnow()
+    
+    db.session.commit()
+    
+    current_app.logger.info(f'Admin updated payment {payment_id} status to {new_status}')
+    return jsonify({
+        'message': 'Payment status updated successfully',
+        'payment': payment.to_dict()
+    }), 200
+
+
+@bp.route('/referrals/<int:referral_id>', methods=['DELETE'])
+@admin_required
+def delete_referral(referral_id):
+    current_app.logger.info(f'=== Admin Delete Referral: {referral_id} ===')
+    
+    referral = Referral.query.get(referral_id)
+    if not referral:
+        return jsonify({'error': 'Referral not found'}), 404
+    
+    Payout.query.filter_by(referral_id=referral_id).delete()
+    
+    db.session.delete(referral)
+    db.session.commit()
+    
+    current_app.logger.info(f'Admin deleted referral ID: {referral_id}')
+    return jsonify({'message': 'Referral deleted successfully'}), 200
+
+
+@bp.route('/database/cleanup', methods=['POST'])
+@admin_required
+def cleanup_database():
+    current_app.logger.info('=== Admin Database Cleanup ===')
+    data = request.get_json()
+    
+    cleanup_type = data.get('type', 'all')
+    results = {}
+    
+    if cleanup_type in ['all', 'failed_payments']:
+        count = Payment.query.filter_by(status='failed').delete()
+        results['failed_payments_deleted'] = count
+    
+    if cleanup_type in ['all', 'old_inactive_rentals']:
+        from datetime import timedelta
+        cutoff = datetime.utcnow() - timedelta(days=365)
+        count = Rental.query.filter(
+            Rental.is_active == False,
+            Rental.end_date < cutoff
+        ).delete()
+        results['old_inactive_rentals_deleted'] = count
+    
+    if cleanup_type in ['all', 'orphan_payouts']:
+        orphans = Payout.query.filter(
+            ~Payout.user_id.in_(db.session.query(User.id))
+        ).delete(synchronize_session='fetch')
+        results['orphan_payouts_deleted'] = orphans
+    
+    db.session.commit()
+    
+    current_app.logger.info(f'Admin cleanup completed: {results}')
+    return jsonify({
+        'message': 'Database cleanup completed',
+        'results': results
+    }), 200
+
+
+@bp.route('/database/stats', methods=['GET'])
+@admin_required
+def get_database_stats():
+    current_app.logger.info('=== Admin Get Database Stats ===')
+    
+    stats = {
+        'users': {
+            'total': User.query.count(),
+            'admins': User.query.filter_by(is_admin=True).count()
+        },
+        'miners': {
+            'total': Miner.query.count()
+        },
+        'rentals': {
+            'total': Rental.query.count(),
+            'active': Rental.query.filter_by(is_active=True).count(),
+            'inactive': Rental.query.filter_by(is_active=False).count()
+        },
+        'payments': {
+            'total': Payment.query.count(),
+            'pending': Payment.query.filter_by(status='pending').count(),
+            'confirmed': Payment.query.filter_by(status='confirmed').count(),
+            'failed': Payment.query.filter_by(status='failed').count()
+        },
+        'referrals': {
+            'total': Referral.query.count()
+        },
+        'payouts': {
+            'total': Payout.query.count(),
+            'pending': Payout.query.filter_by(status='pending').count(),
+            'paid': Payout.query.filter_by(status='paid').count()
+        }
+    }
+    
+    return jsonify(stats), 200
+
+
+@bp.route('/users/<int:user_id>/balance', methods=['PUT'])
+@admin_required
+def update_user_balance(user_id):
+    current_app.logger.info(f'=== Admin Update User Balance: {user_id} ===')
+    
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    data = request.get_json()
+    
+    referrals = Referral.query.filter_by(referrer_id=user_id).all()
+    if data.get('commission_earned_usd') is not None:
+        for referral in referrals:
+            referral.commission_earned_usd = float(data['commission_earned_usd']) / len(referrals) if referrals else 0
+    
+    db.session.commit()
+    
+    current_app.logger.info(f'Admin updated balance for user {user_id}')
+    return jsonify({
+        'message': 'User balance updated successfully',
+        'user': user.to_dict()
+    }), 200
+
+
+@bp.route('/rentals/<int:rental_id>', methods=['PUT'])
+@admin_required
+def update_rental(rental_id):
+    current_app.logger.info(f'=== Admin Update Rental: {rental_id} ===')
+    
+    rental = Rental.query.get(rental_id)
+    if not rental:
+        return jsonify({'error': 'Rental not found'}), 404
+    
+    data = request.get_json()
+    
+    if 'is_active' in data:
+        rental.is_active = data['is_active']
+    if 'total_profit_btc' in data:
+        rental.total_profit_btc = float(data['total_profit_btc'])
+    if 'hashrate_allocated' in data:
+        rental.hashrate_allocated = float(data['hashrate_allocated'])
+    if 'duration_days' in data:
+        rental.duration_days = int(data['duration_days'])
+    if 'monthly_fee_usd' in data:
+        rental.monthly_fee_usd = float(data['monthly_fee_usd'])
+    
+    db.session.commit()
+    
+    current_app.logger.info(f'Admin updated rental {rental_id}')
+    return jsonify({
+        'message': 'Rental updated successfully',
+        'rental': rental.to_dict()
     }), 200

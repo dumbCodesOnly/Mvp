@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { FaChartLine, FaServer, FaUsers, FaGift, FaCog, FaWallet, FaShieldAlt, FaCreditCard } from 'react-icons/fa'
+import { FaChartLine, FaServer, FaUsers, FaGift, FaCog, FaWallet, FaShieldAlt, FaCreditCard, FaDatabase } from 'react-icons/fa'
 
 const Sidebar = () => {
   const { user } = useAuth()
@@ -18,6 +18,8 @@ const Sidebar = () => {
     { path: '/admin', label: 'Admin Dashboard', icon: FaShieldAlt },
     { path: '/admin/miners', label: 'Manage Miners', icon: FaServer },
     { path: '/admin/users', label: 'Manage Users', icon: FaUsers },
+    { path: '/admin/settings', label: 'Settings', icon: FaCog },
+    { path: '/admin/database', label: 'Database', icon: FaDatabase },
   ]
 
   const isActive = (path) => {

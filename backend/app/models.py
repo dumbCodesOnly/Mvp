@@ -179,3 +179,60 @@ class Payout(db.Model):
             'processed_at': self.processed_at.isoformat() if self.processed_at else None,
             'created_at': self.created_at.isoformat()
         }
+
+
+class SystemSettings(db.Model):
+    __tablename__ = 'system_settings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    value = db.Column(db.String(500), nullable=False)
+    description = db.Column(db.String(500))
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    @staticmethod
+    def get_setting(key, default=None):
+        setting = SystemSettings.query.filter_by(key=key).first()
+        return setting.value if setting else default
+    
+    @staticmethod
+    def set_setting(key, value, description=None):
+        setting = SystemSettings.query.filter_by(key=key).first()
+        if setting:
+            setting.value = str(value)
+            if description:
+                setting.description = description
+        else:
+            setting = SystemSettings(key=key, value=str(value), description=description)
+            db.session.add(setting)
+        db.session.commit()
+        return setting
+    
+    @staticmethod
+    def get_all_settings():
+        settings = SystemSettings.query.all()
+        return {s.key: {'value': s.value, 'description': s.description, 'updated_at': s.updated_at.isoformat() if s.updated_at else None} for s in settings}
+    
+    @staticmethod
+    def initialize_defaults():
+        defaults = {
+            'referral_percentage': ('5.0', 'Referral commission percentage (e.g., 5.0 means 5%)'),
+            'profit_percentage': ('10.0', 'Daily profit percentage for mining rentals'),
+            'min_withdrawal': ('50.0', 'Minimum withdrawal amount in USD'),
+            'maintenance_fee_percentage': ('2.0', 'Maintenance fee percentage deducted from profits'),
+            'btc_mining_reward': ('0.00001', 'Base BTC reward per TH/s per day')
+        }
+        for key, (value, description) in defaults.items():
+            if not SystemSettings.query.filter_by(key=key).first():
+                setting = SystemSettings(key=key, value=value, description=description)
+                db.session.add(setting)
+        db.session.commit()
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'key': self.key,
+            'value': self.value,
+            'description': self.description,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }

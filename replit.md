@@ -117,6 +117,13 @@ All models use SQLAlchemy ORM with foreign key relationships and lazy loading fo
 ## Recent Changes
 
 **December 7, 2025:**
+- Added Enhanced Admin Panel features:
+  - SystemSettings model for configurable system parameters (referral %, profit %, min withdrawal, maintenance fee %, BTC mining reward)
+  - Admin Settings page for editing referral commissions, profit percentages, and financial settings
+  - Admin Database Management page with database stats and cleanup tools
+  - Database cleanup operations: remove failed payments, old inactive rentals, orphan payouts
+  - CRUD operations for users, rentals, payments, and referrals from admin panel
+  - Payment status management (pending, confirmed, failed, refunded)
 - Added auto-create admin user feature for easier deployment
   - Admin user is automatically created on first login if ADMIN_EMAIL and ADMIN_PASSWORD env vars are set
   - No database seeding required for admin access
@@ -254,6 +261,8 @@ This creates:
 - `/admin` - Admin Dashboard with stats overview
 - `/admin/miners` - Miner management (CRUD)
 - `/admin/users` - User management with search
+- `/admin/settings` - System settings (referral %, profit %, withdrawal limits)
+- `/admin/database` - Database management and cleanup tools
 
 **Admin API Endpoints:**
 - `GET /api/admin/stats` - Dashboard statistics
@@ -269,6 +278,18 @@ This creates:
 - `GET /api/admin/payouts` - List all payouts with pending total
 - `PUT /api/admin/payouts/:id/process` - Process individual payout
 - `PUT /api/admin/payouts/process-all` - Process all pending payouts
+- `GET /api/admin/settings` - Get all system settings
+- `PUT /api/admin/settings` - Update multiple settings at once
+- `PUT /api/admin/settings/:key` - Update a single setting
+- `GET /api/admin/database/stats` - Get database statistics (counts per table)
+- `POST /api/admin/database/cleanup` - Clean up failed payments, old rentals, orphan payouts
+- `DELETE /api/admin/users/:id` - Delete user and all related data
+- `DELETE /api/admin/rentals/:id` - Delete rental and related payments
+- `DELETE /api/admin/payments/:id` - Delete payment record
+- `PUT /api/admin/payments/:id/status` - Update payment status
+- `DELETE /api/admin/referrals/:id` - Delete referral record
+- `PUT /api/admin/users/:id/balance` - Update user balance/commission
+- `PUT /api/admin/rentals/:id` - Update rental details
 
 **Payment API Endpoints:**
 - `POST /api/payments/checkout` - Create rental order with payment
