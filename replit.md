@@ -116,6 +116,12 @@ All models use SQLAlchemy ORM with foreign key relationships and lazy loading fo
 
 ## Recent Changes
 
+**December 7, 2025:**
+- Added auto-create admin user feature for easier deployment
+  - Admin user is automatically created on first login if ADMIN_EMAIL and ADMIN_PASSWORD env vars are set
+  - No database seeding required for admin access
+  - Works on Render, Replit, and other platforms without needing to run seed scripts
+
 **December 5, 2025 (Phase 7 - Advanced Features):**
 - Added CSS animations and transitions for better UX
   - Fade-in animations on page load (animate-fade-in, animate-fade-in-up, animate-fade-in-down)
@@ -182,6 +188,8 @@ Follow these steps when importing this project into Replit:
 Add the following secrets in Replit's Secrets tab:
 - `SECRET_KEY` - Flask session secret (generate a random string)
 - `JWT_SECRET_KEY` - JWT token secret (can be same as SECRET_KEY)
+- `ADMIN_EMAIL` - Admin user email (auto-creates admin on first login)
+- `ADMIN_PASSWORD` - Admin user password
 
 Optional secrets:
 - `MAINTENANCE_FEE_PERCENT` - Default: 5.0
@@ -237,8 +245,10 @@ This creates:
 - Frontend: Vite dev server on port 5000 (proxies /api to backend)
 - Backend: Flask dev server on port 3000
 
-**Test Credentials:**
-- Admin: Set via ADMIN_EMAIL and ADMIN_PASSWORD environment variables when running seed_data.py
+**Admin Access (Auto-Create Feature):**
+- The admin user is automatically created on first login if `ADMIN_EMAIL` and `ADMIN_PASSWORD` environment variables are set
+- No database seeding required - just set the environment variables and log in
+- The system will create the admin user with the specified credentials on first login attempt
 
 **Admin Panel Routes:**
 - `/admin` - Admin Dashboard with stats overview

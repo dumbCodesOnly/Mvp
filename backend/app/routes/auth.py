@@ -1,10 +1,50 @@
 import logging
+import os
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app import db
 from app.models import User, Referral
 
 bp = Blueprint('auth', __name__, url_prefix='/api/auth')
+
+
+def get_or_create_admin_user(email, password):
+    """
+    Check if admin user exists, if not create one using environment variables.
+    Returns the admin user if credentials match, None otherwise.
+    """
+    admin_email = os.environ.get('ADMIN_EMAIL')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_email or not admin_password:
+        return None
+    
+    if email != admin_email:
+        return None
+    
+    user = User.query.filter_by(email=admin_email).first()
+    
+    if not user:
+        current_app.logger.info(f'Creating admin user from environment variables: {admin_email}')
+        user = User(
+            email=admin_email,
+            referral_code=User.generate_referral_code(),
+            is_admin=True
+        )
+        user.set_password(admin_password)
+        db.session.add(user)
+        db.session.commit()
+        current_app.logger.info(f'Admin user created successfully with ID: {user.id}')
+    
+    if user.check_password(password):
+        if not user.is_admin:
+            user.is_admin = True
+            db.session.commit()
+            current_app.logger.info(f'Updated user {user.email} to admin status')
+        return user
+    
+    return None
+
 
 @bp.route('/register', methods=['POST'])
 def register():
@@ -61,6 +101,15 @@ def login():
     if not data or not data.get('email') or not data.get('password'):
         current_app.logger.warning('Login failed: Missing email or password')
         return jsonify({'error': 'Email and password required'}), 400
+    
+    admin_user = get_or_create_admin_user(data['email'], data['password'])
+    if admin_user:
+        access_token = create_access_token(identity=str(admin_user.id))
+        current_app.logger.info(f'Admin user {admin_user.email} logged in successfully (ID: {admin_user.id})')
+        return jsonify({
+            'access_token': access_token,
+            'user': admin_user.to_dict()
+        }), 200
     
     user = User.query.filter_by(email=data['email']).first()
     
