@@ -125,7 +125,7 @@ const Miners = () => {
                 <button
                   key={days}
                   onClick={() => setFilters(prev => ({ ...prev, duration: days }))}
-                  className={`px-4 py-2 md:px-3 md:py-1 rounded-lg text-sm transition min-h-[44px] md:min-h-0 ${
+                  className={`px-4 py-2 md:px-3 md:py-1 rounded-lg text-sm transition min-h-[48px] md:min-h-0 ${
                     filters.duration === days
                       ? 'bg-gradient-primary text-white'
                       : 'bg-dark-hover text-gray-300 hover:bg-gray-700'
