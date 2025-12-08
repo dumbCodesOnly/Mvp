@@ -16,6 +16,7 @@ import AdminMiners from './pages/AdminMiners'
 import AdminUsers from './pages/AdminUsers'
 import AdminSettings from './pages/AdminSettings'
 import AdminDatabase from './pages/AdminDatabase'
+import Account from './pages/Account'
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
               <Route path="rentals" element={<ProtectedRoute><MyRentals /></ProtectedRoute>} />
               <Route path="payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
               <Route path="referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
+              <Route path="account" element={<Account />} />
               <Route path="admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
               <Route path="admin/miners" element={<ProtectedRoute requireAdmin><AdminMiners /></ProtectedRoute>} />
               <Route path="admin/users" element={<ProtectedRoute requireAdmin><AdminUsers /></ProtectedRoute>} />

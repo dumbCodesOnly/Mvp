@@ -4,6 +4,7 @@ import { FaBitcoin, FaChartLine, FaServer, FaUsers, FaSignOutAlt, FaBars, FaTime
 import { useState } from 'react'
 import Footer from './Footer'
 import Sidebar from './Sidebar'
+import BottomTabs from './BottomTabs'
 
 const Layout = () => {
   const { user, logout } = useAuth()
@@ -122,7 +123,7 @@ const Layout = () => {
       
       <div className="flex flex-1">
         <Sidebar />
-        <main className="flex-1 w-full lg:pl-4 px-4 sm:px-6 lg:px-8 py-8 overflow-x-hidden">
+        <main className="flex-1 w-full lg:pl-4 px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8 overflow-x-hidden">
           <div className="max-w-6xl mx-auto">
             <Outlet />
           </div>
@@ -130,6 +131,7 @@ const Layout = () => {
       </div>
       
       <Footer />
+      <BottomTabs />
     </div>
   )
 }
