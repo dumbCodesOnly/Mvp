@@ -69,8 +69,8 @@ const Referrals = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-4xl font-bold mb-2">Referral Program</h1>
-        <p className="text-gray-400">Invite friends and earn 3% commission on their rentals</p>
+        <h1 className="text-3xl md:text-4xl font-bold mb-2">Referral Program</h1>
+        <p className="text-gray-400 text-sm md:text-base">Invite friends and earn 3% commission on their rentals</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -122,10 +122,10 @@ const Referrals = () => {
           </div>
         </div>
         
-        <div className="flex gap-4 mt-6">
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mt-6">
           <button
             onClick={copyReferralLink}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition ${
+            className={`flex items-center justify-center gap-2 px-6 py-4 md:py-3 rounded-lg font-semibold transition min-h-[52px] flex-1 sm:flex-none ${
               copied 
                 ? 'bg-green-600 hover:bg-green-700' 
                 : 'bg-gradient-primary hover:opacity-90'
@@ -137,60 +137,85 @@ const Referrals = () => {
           
           <button
             onClick={shareReferralLink}
-            className="flex items-center gap-2 px-6 py-3 bg-dark-hover hover:bg-gray-700 rounded-lg font-semibold transition"
+            className="flex items-center justify-center gap-2 px-6 py-4 md:py-3 bg-dark-hover hover:bg-gray-700 rounded-lg font-semibold transition min-h-[52px] flex-1 sm:flex-none"
           >
             <FaShare /> Share
           </button>
         </div>
       </div>
 
-      <div className="glass-card p-8 rounded-2xl">
-        <h2 className="text-2xl font-bold mb-6">How It Works</h2>
+      <div className="glass-card p-6 md:p-8 rounded-2xl">
+        <h2 className="text-xl md:text-2xl font-bold mb-6">How It Works</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center">
-            <div className="bg-gradient-primary w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+          <div className="text-center flex flex-row md:flex-col items-center md:items-center gap-4 md:gap-0">
+            <div className="bg-gradient-primary w-12 h-12 rounded-full flex items-center justify-center shrink-0 md:mx-auto md:mb-4 text-xl font-bold">
               1
             </div>
-            <h3 className="font-bold mb-2">Share Your Link</h3>
-            <p className="text-gray-400 text-sm">
-              Share your unique referral link with friends, family, or on social media.
-            </p>
+            <div className="text-left md:text-center">
+              <h3 className="font-bold mb-1 md:mb-2">Share Your Link</h3>
+              <p className="text-gray-400 text-sm">
+                Share your unique referral link with friends, family, or on social media.
+              </p>
+            </div>
           </div>
           
-          <div className="text-center">
-            <div className="bg-gradient-primary w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+          <div className="text-center flex flex-row md:flex-col items-center md:items-center gap-4 md:gap-0">
+            <div className="bg-gradient-primary w-12 h-12 rounded-full flex items-center justify-center shrink-0 md:mx-auto md:mb-4 text-xl font-bold">
               2
             </div>
-            <h3 className="font-bold mb-2">Friends Sign Up</h3>
-            <p className="text-gray-400 text-sm">
-              When they register using your link and rent mining power, you earn rewards.
-            </p>
+            <div className="text-left md:text-center">
+              <h3 className="font-bold mb-1 md:mb-2">Friends Sign Up</h3>
+              <p className="text-gray-400 text-sm">
+                When they register using your link and rent mining power, you earn rewards.
+              </p>
+            </div>
           </div>
           
-          <div className="text-center">
-            <div className="bg-gradient-primary w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+          <div className="text-center flex flex-row md:flex-col items-center md:items-center gap-4 md:gap-0">
+            <div className="bg-gradient-primary w-12 h-12 rounded-full flex items-center justify-center shrink-0 md:mx-auto md:mb-4 text-xl font-bold">
               3
             </div>
-            <h3 className="font-bold mb-2">Earn Commission</h3>
-            <p className="text-gray-400 text-sm">
-              Get 3% commission on all their rental payments. Commissions are paid monthly.
-            </p>
+            <div className="text-left md:text-center">
+              <h3 className="font-bold mb-1 md:mb-2">Earn Commission</h3>
+              <p className="text-gray-400 text-sm">
+                Get 3% commission on all their rental payments. Commissions are paid monthly.
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="glass-card p-8 rounded-2xl">
-        <h2 className="text-2xl font-bold mb-6">Your Referrals</h2>
+      <div className="glass-card p-6 md:p-8 rounded-2xl">
+        <h2 className="text-xl md:text-2xl font-bold mb-6">Your Referrals</h2>
         
         {referrals.length === 0 ? (
           <div className="text-center py-8">
-            <FaUsers className="text-5xl text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400">You haven't referred anyone yet.</p>
-            <p className="text-gray-500 text-sm mt-2">Share your referral link to start earning commissions!</p>
+            <FaUsers className="text-4xl md:text-5xl text-gray-600 mx-auto mb-4" />
+            <p className="text-gray-400 text-sm md:text-base">You haven't referred anyone yet.</p>
+            <p className="text-gray-500 text-xs md:text-sm mt-2">Share your referral link to start earning commissions!</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="space-y-4 md:hidden">
+            {referrals.map((referral) => (
+              <div key={referral.id} className="bg-dark-card p-4 rounded-lg">
+                <div className="flex justify-between items-start mb-2">
+                  <span className="text-gray-300 font-medium">{referral.referred_email || 'Anonymous'}</span>
+                  <span className="text-green-400 font-semibold">${referral.commission_earned_usd?.toFixed(2) || '0.00'}</span>
+                </div>
+                <p className="text-gray-400 text-sm">
+                  {referral.created_at 
+                    ? format(new Date(referral.created_at), 'MMM dd, yyyy')
+                    : 'N/A'
+                  }
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {referrals.length > 0 && (
+          <div className="overflow-x-auto hidden md:block">
             <table className="w-full">
               <thead>
                 <tr className="text-left text-gray-400 border-b border-gray-700">

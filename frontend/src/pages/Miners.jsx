@@ -105,45 +105,45 @@ const Miners = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-4xl font-bold mb-2">Mining Plans</h1>
-        <p className="text-gray-400">Choose your perfect mining plan and start earning Bitcoin</p>
+        <h1 className="text-3xl md:text-4xl font-bold mb-2">Mining Plans</h1>
+        <p className="text-gray-400 text-sm md:text-base">Choose your perfect mining plan and start earning Bitcoin</p>
       </div>
 
       <div className="glass-card p-4 rounded-xl">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-3 md:gap-4">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-2 bg-dark-hover rounded-lg hover:bg-gray-700 transition"
+              className="flex items-center gap-2 px-4 py-3 md:py-2 bg-dark-hover rounded-lg hover:bg-gray-700 transition min-h-[48px]"
             >
               <FaFilter /> Filters
             </button>
             
-            <div className="flex items-center gap-2">
-              <span className="text-gray-400 text-sm">Duration:</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-gray-400 text-sm hidden md:inline">Duration:</span>
               {[30, 90, 180].map(days => (
                 <button
                   key={days}
                   onClick={() => setFilters(prev => ({ ...prev, duration: days }))}
-                  className={`px-3 py-1 rounded-lg text-sm transition ${
+                  className={`px-4 py-2 md:px-3 md:py-1 rounded-lg text-sm transition min-h-[44px] md:min-h-0 ${
                     filters.duration === days
                       ? 'bg-gradient-primary text-white'
                       : 'bg-dark-hover text-gray-300 hover:bg-gray-700'
                   }`}
                 >
-                  {days} Days
+                  {days}d
                 </button>
               ))}
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-gray-400 text-sm">Sort by:</span>
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="flex items-center gap-2 flex-1 md:flex-none">
+              <span className="text-gray-400 text-sm hidden md:inline">Sort:</span>
               <select
                 value={filters.sortBy}
                 onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
-                className="bg-dark-hover border border-gray-700 rounded-lg px-3 py-1 text-sm focus:outline-none focus:border-purple-500"
+                className="bg-dark-hover border border-gray-700 rounded-lg px-3 py-3 md:py-1 text-sm focus:outline-none focus:border-purple-500 flex-1 md:flex-none min-h-[48px] md:min-h-0"
               >
                 <option value="price">Price</option>
                 <option value="hashrate">Hashrate</option>
@@ -151,7 +151,7 @@ const Miners = () => {
               </select>
               <button
                 onClick={toggleSortOrder}
-                className="p-2 bg-dark-hover rounded-lg hover:bg-gray-700 transition"
+                className="p-3 md:p-2 bg-dark-hover rounded-lg hover:bg-gray-700 transition min-h-[48px] min-w-[48px] flex items-center justify-center"
               >
                 {filters.sortOrder === 'asc' ? <FaSortAmountUp /> : <FaSortAmountDown />}
               </button>
@@ -241,7 +241,7 @@ const Miners = () => {
                 <span className="text-sm text-gray-400">{filters.duration} Days</span>
               </div>
               
-              <button className="w-full bg-gradient-primary hover:opacity-90 py-3 rounded-lg font-semibold transition">
+              <button className="w-full bg-gradient-primary hover:opacity-90 py-4 md:py-3 rounded-lg font-semibold transition min-h-[52px] text-base">
                 View Details
               </button>
             </div>
@@ -271,22 +271,22 @@ const Miners = () => {
         <div className="glass-card p-8 rounded-2xl">
           <h2 className="text-2xl font-bold mb-6">Profit Estimate - {selectedMiner.name}</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
             <div className="bg-dark-card p-4 rounded-lg">
-              <p className="text-sm text-gray-400 mb-1">Daily BTC</p>
-              <p className="text-xl font-bold text-yellow-400">{estimate.daily_btc?.toFixed(8)} BTC</p>
+              <p className="text-xs md:text-sm text-gray-400 mb-1">Daily BTC</p>
+              <p className="text-lg md:text-xl font-bold text-yellow-400">{estimate.daily_btc?.toFixed(8)} BTC</p>
             </div>
             <div className="bg-dark-card p-4 rounded-lg">
-              <p className="text-sm text-gray-400 mb-1">Monthly BTC</p>
-              <p className="text-xl font-bold text-yellow-400">{estimate.monthly_btc?.toFixed(8)} BTC</p>
+              <p className="text-xs md:text-sm text-gray-400 mb-1">Monthly BTC</p>
+              <p className="text-lg md:text-xl font-bold text-yellow-400">{estimate.monthly_btc?.toFixed(8)} BTC</p>
             </div>
             <div className="bg-dark-card p-4 rounded-lg">
-              <p className="text-sm text-gray-400 mb-1">Monthly USD</p>
-              <p className="text-xl font-bold text-green-400">${estimate.monthly_usd?.toFixed(2)}</p>
+              <p className="text-xs md:text-sm text-gray-400 mb-1">Monthly USD</p>
+              <p className="text-lg md:text-xl font-bold text-green-400">${estimate.monthly_usd?.toFixed(2)}</p>
             </div>
             <div className="bg-dark-card p-4 rounded-lg">
-              <p className="text-sm text-gray-400 mb-1">ROI Days</p>
-              <p className="text-xl font-bold text-blue-400">{estimate.roi_days} days</p>
+              <p className="text-xs md:text-sm text-gray-400 mb-1">ROI Days</p>
+              <p className="text-lg md:text-xl font-bold text-blue-400">{estimate.roi_days} days</p>
             </div>
           </div>
           
@@ -310,7 +310,7 @@ const Miners = () => {
                 })
               }
             }}
-            className="bg-gradient-primary hover:opacity-90 px-8 py-3 rounded-lg font-semibold transition"
+            className="bg-gradient-primary hover:opacity-90 px-8 py-4 md:py-3 rounded-lg font-semibold transition min-h-[52px] text-base w-full md:w-auto"
           >
             {user ? 'Rent This Miner' : 'Login to Rent'}
           </button>

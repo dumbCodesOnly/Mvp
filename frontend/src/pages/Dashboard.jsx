@@ -43,14 +43,14 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="text-center py-12 animate-fade-in-down">
-        <h1 className="text-5xl font-bold mb-4">
+    <div className="space-y-6 md:space-y-8 animate-fade-in">
+      <div className="text-center py-6 md:py-12 animate-fade-in-down px-2">
+        <h1 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4">
           <span className="bg-gradient-to-r from-purple-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent">
             Start Mining Bitcoin
           </span>
         </h1>
-        <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+        <p className="text-base md:text-xl text-gray-400 max-w-2xl mx-auto">
           Join the world's most advanced cloud mining platform. Rent hash power and start earning Bitcoin today.
         </p>
       </div>
@@ -106,18 +106,18 @@ const Dashboard = () => {
 
       <PriceChart currentPrice={stats?.btc_price} />
 
-      <div className="glass-card p-8 rounded-2xl text-center hover-glow animate-fade-in-up">
-        <h2 className="text-3xl font-bold mb-4">Ready to Start Mining?</h2>
-        <p className="text-gray-400 mb-6 max-w-2xl mx-auto">
+      <div className="glass-card p-6 md:p-8 rounded-2xl text-center hover-glow animate-fade-in-up">
+        <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">Ready to Start Mining?</h2>
+        <p className="text-gray-400 mb-5 md:mb-6 max-w-2xl mx-auto text-sm md:text-base">
           Browse our mining plans and choose the perfect hashrate for your needs. 
           All plans include 24/7 monitoring, automatic payouts, and transparent fees.
         </p>
-        <div className="flex gap-4 justify-center">
-          <a href="/miners" className="bg-gradient-primary hover:opacity-90 px-8 py-3 rounded-lg font-semibold btn-transition">
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
+          <a href="/miners" className="bg-gradient-primary hover:opacity-90 px-8 py-4 md:py-3 rounded-lg font-semibold btn-transition min-h-[48px] flex items-center justify-center">
             Browse Miners
           </a>
           {!user && (
-            <a href="/register" className="glass-card hover:bg-dark-hover px-8 py-3 rounded-lg font-semibold btn-transition">
+            <a href="/register" className="glass-card hover:bg-dark-hover px-8 py-4 md:py-3 rounded-lg font-semibold btn-transition min-h-[48px] flex items-center justify-center">
               Create Account
             </a>
           )}
