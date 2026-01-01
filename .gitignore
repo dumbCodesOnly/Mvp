@@ -56,3 +56,8 @@ frontend/build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+gunicorn_output.log
+backend/logs/

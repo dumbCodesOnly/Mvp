@@ -3,14 +3,17 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 
+from sqlalchemy import inspect
 from app import create_app, db
 from app.models import User, Miner, Rental, Referral, Payment, Payout, SystemSettings
 
 app = create_app()
 
 with app.app_context():
-    db.create_all()
-    SystemSettings.initialize_defaults()
+    inspector = inspect(db.engine)
+    if not inspector.has_table("users"):
+        db.create_all()
+        SystemSettings.initialize_defaults()
 
 @app.shell_context_processor
 def make_shell_context():
