@@ -1,13 +1,20 @@
 import os
+import logging
 from datetime import timedelta
 
 
 def get_database_uri():
-    uri = os.environ.get('DATABASE_URL', '')
-    if uri.startswith('postgres://'):
-        uri = uri.replace('postgres://', 'postgresql+psycopg://', 1)
-    elif uri.startswith('postgresql://'):
-        uri = uri.replace('postgresql://', 'postgresql+psycopg://', 1)
+    uri = os.environ.get('DATABASE_URL')
+    if uri:
+        if uri.startswith('postgres://'):
+            uri = uri.replace('postgres://', 'postgresql+psycopg://', 1)
+        elif uri.startswith('postgresql://'):
+            uri = uri.replace('postgresql://', 'postgresql+psycopg://', 1)
+    else:
+        # Use SQLite for local development if DATABASE_URL is not set
+        basedir = os.path.abspath(os.path.dirname(__file__))
+        uri = 'sqlite:///' + os.path.join(basedir, 'app.db')
+        logging.info(f"DATABASE_URL not set, falling back to SQLite: {uri}")
     return uri
 
 
@@ -36,8 +43,14 @@ class ProductionConfig(Config):
     DEBUG = False
 
 
+class TestingConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+
+
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
+    'testing': TestingConfig,
     'default': DevelopmentConfig
 }
