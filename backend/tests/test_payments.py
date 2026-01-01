@@ -1,4 +1,5 @@
 import pytest
+from app import db
 
 def test_create_payment(client):
     """Test creating a new payment."""
